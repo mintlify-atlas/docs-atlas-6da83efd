@@ -1,0 +1,93 @@
+{
+  "projectType": "saas",
+  "projectName": "Curriculum Vitae",
+  "projectDescription": "A professional CV builder with multiple templates, photo upload, and PDF export capabilities",
+  "theme": "almond",
+  "primaryColor": "#fc4e67",
+  "lightColor": "#fca2ab",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/personal-info",
+              "features/work-experience",
+              "features/education",
+              "features/skills",
+              "features/photo-upload",
+              "features/templates"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/creating-cv",
+              "guides/exporting-pdf",
+              "guides/data-management",
+              "guides/customization"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Templates",
+            "pages": [
+              "templates/overview",
+              "templates/cv1",
+              "templates/cv2",
+              "templates/cv3"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "components/forms",
+              "components/photo-cropper",
+              "components/navigation"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Multiple professional CV templates with customizable designs",
+    "Personal information management with form validation",
+    "Work experience and education tracking",
+    "Technical and soft skills management",
+    "Profile photo upload with cropping functionality",
+    "PDF export with high-quality rendering",
+    "Local data persistence using cookies and localStorage",
+    "Professional and personal references sections",
+    "Responsive design optimized for all devices"
+  ],
+  "publicApiSurface": [
+    "Personal Info Form - /perfil/info-personal",
+    "Work Experience Form - /perfil/experiencia-laboral",
+    "Academic Info Form - /perfil/info-academica",
+    "Skills Form - /perfil/competencias",
+    "Professional References - /perfil/ref-profesionales",
+    "Personal References - /perfil/ref-personales",
+    "Load Information - /perfil/cargar-informacion",
+    "CV Template 1 - /disenios/cv1",
+    "CV Template 2 - /disenios/cv2",
+    "CV Template 3 - /disenios/cv3",
+    "Important Information - /importante",
+    "About/Info - /info"
+  ]
+}
