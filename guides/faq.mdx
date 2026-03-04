@@ -1,0 +1,277 @@
+---
+title: Frequently Asked Questions
+description: Common questions about using the Curriculum Vitae builder and managing your data
+---
+
+## General Questions
+
+<Accordion title="Do I need to fill in all the fields?">
+  No, you don't need to fill in every field. Any fields you leave empty will simply not appear on your final CV. The application only includes sections that contain data, so you can skip entire categories if they're not relevant to you.
+  
+  For example, if you don't add any languages, the "Languages" section won't appear on your CV template.
+</Accordion>
+
+<Accordion title="Where is my information stored?">
+  All your CV information is stored locally in your browser using two mechanisms:
+  
+  - **Cookies**: Personal info, work experience, education, skills, and references (expires after 10 years)
+  - **localStorage**: Profile photo and photo display preferences
+  
+  This means your data never leaves your device and remains private. However, if you clear your browser data, your CV information will also be deleted.
+</Accordion>
+
+<Accordion title="Will my data still be there after I close the browser?">
+  Yes! Your data persists even after closing the browser tab or shutting down your computer. The cookies are set to expire after 3,650 days (10 years), and localStorage data remains indefinitely unless you clear browser storage.
+  
+  You can return to the application at any time and continue editing your CV.
+</Accordion>
+
+<Accordion title="Can I use this application on different devices?">
+  Since data is stored in your browser, each device maintains its own separate copy. To transfer your CV between devices:
+  
+  1. Download a backup JSON file from the first device (click **Descargar** button)
+  2. Open the application on the second device
+  3. Upload the backup file (click **Cargar** button)
+  
+  See [Data Backup & Restore](/features/data-backup) for detailed instructions.
+</Accordion>
+
+## Data Management
+
+<Accordion title="How do I back up my information?">
+  To create a backup of your CV data:
+  
+  1. Navigate to any page under **PERFIL** (Profile section)
+  2. Scroll to the bottom of the page
+  3. Click the **Descargar** (Download) button
+  4. Save the `CV-Backup.json` file to a secure location
+  
+  This file contains all your CV information including your profile photo. Keep it safe - you can use it to restore your data anytime.
+  
+  Learn more: [Data Backup & Restore](/features/data-backup)
+</Accordion>
+
+<Accordion title="What should I do with the downloaded backup file?">
+  The backup file serves multiple purposes:
+  
+  - **Update your data**: Load the file to restore previous information and update it
+  - **Transfer between devices**: Move your CV to a different computer or browser
+  - **Version control**: Keep multiple versions for different job applications
+  - **Disaster recovery**: Restore your CV if you accidentally clear browser data
+  
+  To use a backup file:
+  1. Go to **PERFIL** section
+  2. Click the **Cargar** (Load) button
+  3. Select your backup file
+  4. Click **Cargar Información** to import
+</Accordion>
+
+<Accordion title="How do I delete my information from the browser?">
+  To permanently delete all your CV data:
+  
+  1. Navigate to any page under **PERFIL**
+  2. Scroll to the bottom of the page
+  3. Click the **Borrar** (Delete) button
+  4. Confirm the deletion in the popup window
+  
+  **Warning**: This action is permanent and cannot be undone. Always download a backup before deleting if you might need the data later.
+</Accordion>
+
+<Accordion title="What happens if I accidentally delete my data?">
+  If you haven't created a backup, deleted data cannot be recovered. The application stores everything locally in your browser, and there's no server-side backup.
+  
+  **Prevention tips**:
+  - Download regular backups (especially after major updates)
+  - Keep backup files organized by date
+  - Test restore process occasionally to ensure backups work
+</Accordion>
+
+## Photo Management
+
+<Accordion title="What image formats are supported?">
+  The photo uploader supports all common image formats:
+  - JPEG/JPG
+  - PNG
+  - GIF
+  - WebP
+  
+  Maximum file size is 1MB (1,000 KB) to ensure proper storage and performance.
+</Accordion>
+
+<Accordion title="Why is there a 1MB limit for photos?">
+  Photos are stored as base64-encoded strings in browser localStorage, which typically has a 5-10MB limit per domain for all stored data. The 1MB limit ensures:
+  
+  - Your photo doesn't consume all available storage
+  - PDF generation remains fast and efficient
+  - The application performs well across all browsers
+  
+  If your photo exceeds 1MB, resize or compress it before uploading.
+</Accordion>
+
+<Accordion title="Can I change my photo shape?">
+  Yes! After uploading a photo, you'll see a toggle labeled "Imagen Circular" (Circular Image). This allows you to choose between:
+  
+  - **Square**: Professional, traditional look
+  - **Circular**: Modern, friendly appearance
+  
+  The shape preference is saved to localStorage and applied across all three CV templates.
+</Accordion>
+
+<Accordion title="How do I delete or replace my photo?">
+  To delete your current photo:
+  1. Go to any **PERFIL** page
+  2. Look for the profile photo display at the top
+  3. Click the trash icon next to "Seleccionar Foto"
+  4. Confirm deletion
+  
+  To replace a photo, simply upload a new one - it will automatically overwrite the previous photo.
+</Accordion>
+
+## CV Templates
+
+<Accordion title="How do I choose a CV template?">
+  After entering your information:
+  
+  1. Navigate to **DISEÑOS** (Designs) in the main menu
+  2. Browse the three available templates:
+     - **CV1**: Classic two-column layout
+     - **CV2**: Modern sidebar design
+     - **CV3**: Balanced header layout
+  3. Click on any template to preview your CV
+  4. Download the one you prefer as a PDF
+  
+  You can export all three templates and choose later - there's no limit to the number of PDFs you can generate.
+  
+  Learn more: [CV Templates](/features/templates)
+</Accordion>
+
+<Accordion title="Can I customize the template colors or fonts?">
+  The three templates have predefined color schemes and typography optimized for professional presentation and print quality. These cannot be customized through the user interface.
+  
+  However, if you're comfortable with code, you can modify the template source files in the Next.js application to change colors, fonts, and layout.
+</Accordion>
+
+<Accordion title="Will all my sections appear in the template?">
+  Only sections with data will appear in your CV. If you haven't filled in a particular section (like Languages or References), it won't take up space in the template.
+  
+  This automatic filtering ensures your CV looks polished and doesn't have empty sections.
+</Accordion>
+
+## PDF Export
+
+<Accordion title="What quality is the exported PDF?">
+  PDFs are generated at high resolution (scale factor of 5) using html2canvas and jsPDF. This ensures:
+  
+  - Crisp text rendering
+  - Sharp photo reproduction
+  - Print-ready quality at standard paper sizes
+  
+  The export dimensions are optimized for US Letter size (8.5" × 11").
+  
+  Learn more: [Exporting PDF](/guides/exporting-pdf)
+</Accordion>
+
+<Accordion title="Why does PDF generation take a few seconds?">
+  The application renders your entire CV as a high-resolution canvas image before converting it to PDF. This process includes:
+  
+  1. Rendering all content at 5× scale for quality
+  2. Processing your profile photo
+  3. Applying fonts and styling
+  4. Compressing the image as JPEG
+  5. Embedding it in a PDF document
+  
+  Typical generation time is 2-5 seconds depending on your device's performance.
+</Accordion>
+
+<Accordion title="Can I edit the PDF after downloading?">
+  The exported PDF is a static image embedded in a PDF container, so traditional text editing won't work. To make changes:
+  
+  1. Return to the application
+  2. Update your information in the relevant forms
+  3. Generate a new PDF
+  
+  This workflow ensures your CV always matches your source data.
+</Accordion>
+
+## Troubleshooting
+
+<Accordion title="My changes aren't appearing in the CV">
+  Make sure you clicked the **Actualizar** (Update) or **Guardar** (Save) button after making changes. The application doesn't auto-save - you must manually save each section.
+  
+  Look for a success message confirming your data was saved. If you don't see it, try saving again.
+</Accordion>
+
+<Accordion title="The application won't load my backup file">
+  Common causes and solutions:
+  
+  - **Invalid JSON format**: The file may have been corrupted. Try creating a fresh backup.
+  - **Wrong file type**: Ensure you're selecting the `.json` file, not a different file type
+  - **Browser permissions**: Some browsers require explicit permission to read files. Check for permission prompts.
+  - **File size too large**: If the backup is extremely large (>10MB), it may fail to load. Try reducing photo size.
+</Accordion>
+
+<Accordion title="Some of my data disappeared">
+  If data suddenly vanishes:
+  
+  1. Check if you accidentally cleared browser cookies or cache
+  2. Verify you're using the same browser (data doesn't sync between browsers)
+  3. Look for a backup file you may have created earlier
+  4. Check if someone else used the same browser profile and deleted data
+  
+  **Prevention**: Download regular backups to avoid data loss.
+</Accordion>
+
+<Accordion title="The PDF doesn't match what I see on screen">
+  If the exported PDF looks different from the preview:
+  
+  - Try refreshing the page and regenerating the PDF
+  - Ensure all images and fonts have fully loaded before exporting
+  - Check that your browser supports the required JavaScript APIs
+  - Try using a different browser (Chrome and Firefox have the best compatibility)
+</Accordion>
+
+## Privacy & Security
+
+<Accordion title="Is my personal information sent to any server?">
+  No. All data processing happens entirely in your browser. There are no server-side storage or API calls that transmit your personal information. Your CV data never leaves your device unless you explicitly download it as a JSON file.
+</Accordion>
+
+<Accordion title="Can other people access my CV data?">
+  CV data is stored in your browser profile. Other users on the same computer can access it if they:
+  
+  - Use the same browser profile
+  - Have access to your browser's data files
+  
+  To protect your data:
+  - Use a private browser profile or separate user account
+  - Don't use the application on shared/public computers
+  - Download your data and clear browser storage after use on shared devices
+</Accordion>
+
+<Accordion title="What happens to my data when the browser is updated?">
+  Browser updates don't affect cookies or localStorage data. Your CV information will persist through browser updates, operating system upgrades, and computer restarts.
+  
+  Only these actions will delete your data:
+  - Manually clearing browser cookies and cache
+  - Using the application's **Borrar** (Delete) button
+  - Uninstalling the browser without backup
+</Accordion>
+
+## Getting Help
+
+Need more assistance? Check out these resources:
+
+<CardGroup cols={2}>
+  <Card title="Data Management Guide" icon="database" href="/guides/data-management">
+    Complete guide to backing up, restoring, and managing your CV data
+  </Card>
+  <Card title="Creating Your CV" icon="file-circle-plus" href="/guides/creating-cv">
+    Step-by-step walkthrough of the entire CV creation process
+  </Card>
+  <Card title="Features Overview" icon="star" href="/features/personal-info">
+    Detailed documentation of all available features
+  </Card>
+  <Card title="PDF Export Guide" icon="file-pdf" href="/guides/exporting-pdf">
+    Tips and troubleshooting for generating PDF files
+  </Card>
+</CardGroup>

@@ -1,0 +1,294 @@
+---
+title: Data Backup & Restore
+description: Export, import, and manage your CV data with JSON backup files
+---
+
+## Overview
+
+The Data Backup system allows you to download your complete CV information as a JSON file and restore it later. This feature is essential for:
+
+- Backing up your CV data before clearing browser storage
+- Transferring your CV between devices or browsers
+- Creating versions of your CV for different purposes
+- Safeguarding against accidental data loss
+
+## Implementation Location
+
+- **Download/Export**: `~/workspace/source/src/components/DescargarJSON.jsx`
+- **Upload/Import**: `~/workspace/source/src/app/perfil/cargar-informacion/page.jsx`
+- **Delete Data**: `~/workspace/source/src/components/BorrarInformacion.jsx`
+
+## Accessing Backup Features
+
+All backup features are available from the **PERFIL** section:
+
+1. Navigate to any page under **PERFIL** in the sidebar
+2. Scroll to the bottom of the page
+3. You'll find three buttons:
+   - **Descargar** (Download) - Export your data
+   - **Cargar** (Load) - Import saved data
+   - **Borrar** (Delete) - Erase all data
+
+## Downloading Your Data
+
+### How It Works
+
+The download feature collects all your CV data from cookies and localStorage, packages it into a JSON file, and triggers a browser download.
+
+```javascript
+function descargarJSON() {
+  // Collect all data
+  const data = {
+    InformacionPersonal: Cookies.get("InformacionPersonal"),
+    InformacionAcademica: Cookies.get("InformacionAcademica"),
+    ExperienciaLaboral: Cookies.get("ExperienciaLaboral"),
+    Competencias: Cookies.get("Competencias"),
+    ReferenciasProfesionales: Cookies.get("ReferenciasProfesionales"),
+    ReferenciasPersonales: Cookies.get("ReferenciasPersonales"),
+    fotoPerfil: localStorage.getItem("fotoPerfil")
+  };
+
+  // Create downloadable file
+  const jsonData = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonData], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "CV-Backup.json";
+  link.click();
+}
+```
+
+### Steps to Download
+
+<Steps>
+  <Step title="Navigate to Profile Section">
+    Go to any page under **PERFIL** (Personal Info, Work Experience, etc.)
+  </Step>
+
+  <Step title="Scroll to Bottom">
+    Scroll down to find the data management buttons at the bottom of the page
+  </Step>
+
+  <Step title="Click Descargar">
+    Click the **Descargar** button to export your data
+  </Step>
+
+  <Step title="Save the File">
+    Your browser will download a file named `CV-Backup.json`. Save it to a secure location.
+    
+    <Tip>
+      Consider organizing backup files by date, like `CV-Backup-2024-03-04.json`, if you maintain multiple versions.
+    </Tip>
+  </Step>
+</Steps>
+
+## Data Structure
+
+The exported JSON file contains all your CV information:
+
+```json
+{
+  "InformacionPersonal": "{\"nombre\":\"John\",\"apellido\":\"Doe\",...}",
+  "InformacionAcademica": "[{\"id\":\"123\",\"institucion\":\"Universidad\",...}]",
+  "ExperienciaLaboral": "[{\"id\":\"456\",\"empresa\":\"TechCorp\",...}]",
+  "Competencias": "{\"habilidades\":[...],\"aptitudes\":[...],\"lenguajes\":[...]}",
+  "ReferenciasProfesionales": "[{\"id\":\"789\",\"nombre\":\"Maria\",...}]",
+  "ReferenciasPersonales": "[{\"id\":\"101\",\"nombre\":\"Carlos\",...}]",
+  "fotoPerfil": "data:image/png;base64,..."
+}
+```
+
+<Note>
+  Cookie values are stored as JSON strings within the backup file, while the photo is stored as a base64-encoded data URL.
+</Note>
+
+## Loading/Restoring Data
+
+### How It Works
+
+The load feature reads a JSON backup file and restores all data to cookies and localStorage, effectively restoring your entire CV.
+
+```javascript
+function cargarInformacionDesdeJSON() {
+  if (archivo) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const contenidoJSON = JSON.parse(event.target.result);
+      
+      // Restore localStorage
+      localStorage.setItem("fotoPerfil", contenidoJSON.fotoPerfil);
+      
+      // Restore all cookies with 10-year expiration
+      Cookies.set("Competencias", contenidoJSON.Competencias, {
+        expires: 3650
+      });
+      Cookies.set("ExperienciaLaboral", contenidoJSON.ExperienciaLaboral, {
+        expires: 3650
+      });
+      Cookies.set("InformacionPersonal", contenidoJSON.InformacionPersonal, {
+        expires: 3650
+      });
+      Cookies.set("InformacionAcademica", contenidoJSON.InformacionAcademica, {
+        expires: 3650
+      });
+      Cookies.set("ReferenciasProfesionales", contenidoJSON.ReferenciasProfesionales, {
+        expires: 3650
+      });
+      Cookies.set("ReferenciasPersonales", contenidoJSON.ReferenciasPersonales, {
+        expires: 3650
+      });
+      
+      // Redirect to CV preview
+      router.push("/disenios/cv1");
+    };
+    reader.readAsText(archivo);
+  }
+}
+```
+
+### Steps to Restore
+
+<Steps>
+  <Step title="Navigate to Load Section">
+    Go to **PERFIL** → Click the **Cargar** button, or navigate directly to the **Cargar Información** page
+  </Step>
+
+  <Step title="Select Your Backup File">
+    Click **Seleccionar Archivo** and choose your `CV-Backup.json` file
+    
+    <Warning>
+      Loading data will **replace all current information**. Download a backup of your current data first if you want to keep it.
+    </Warning>
+  </Step>
+
+  <Step title="Confirm and Load">
+    Review the warning message, then click **Cargar Información** to import the data
+  </Step>
+
+  <Step title="Automatic Redirect">
+    After loading, you'll be automatically redirected to CV Template 1 to view your restored CV
+  </Step>
+</Steps>
+
+## Deleting All Data
+
+### How It Works
+
+The delete feature permanently removes all CV data from cookies and localStorage:
+
+```javascript
+function eliminar() {
+  // Remove all cookies
+  Cookies.remove("InformacionPersonal");
+  Cookies.remove("InformacionAcademica");
+  Cookies.remove("ExperienciaLaboral");
+  Cookies.remove("Competencias");
+  Cookies.remove("ReferenciasProfesionales");
+  Cookies.remove("ReferenciasPersonales");
+  
+  // Remove localStorage items
+  localStorage.removeItem("fotoPerfil");
+  localStorage.removeItem("fotoRedonda");
+  
+  // Reload page
+  window.location.reload();
+}
+```
+
+### Steps to Delete
+
+<Steps>
+  <Step title="Backup First">
+    **Always download a backup** before deleting if you might want this data later
+  </Step>
+
+  <Step title="Click Borrar">
+    Scroll to the bottom of any Profile page and click the **Borrar** button
+  </Step>
+
+  <Step title="Confirm Deletion">
+    A confirmation modal will appear asking you to confirm the permanent deletion
+    
+    <Warning>
+      This action cannot be undone. All data will be permanently deleted from your browser.
+    </Warning>
+  </Step>
+
+  <Step title="Finalize">
+    Click **Aceptar** in the modal to complete the deletion. The page will reload with empty forms.
+  </Step>
+</Steps>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Device Migration" icon="desktop">
+    Download on one device, upload on another to transfer your CV
+  </Card>
+  <Card title="Version Control" icon="code-branch">
+    Maintain different CV versions for different job applications
+  </Card>
+  <Card title="Disaster Recovery" icon="life-ring">
+    Recover your data after accidentally clearing browser storage
+  </Card>
+  <Card title="Fresh Start" icon="rotate">
+    Delete all data to start a new CV from scratch
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+### Regular Backups
+
+<Tip>
+  Download a backup after making significant changes to your CV. Consider keeping dated backups to track your CV's evolution.
+</Tip>
+
+### File Organization
+
+```
+CV-Backups/
+  ├── CV-Backup-2024-01-15-TechJobs.json
+  ├── CV-Backup-2024-02-20-FinanceRoles.json
+  └── CV-Backup-2024-03-04-Current.json
+```
+
+### Testing Restores
+
+Before relying on a backup:
+1. Download your current data
+2. Make a small test change
+3. Restore from the backup
+4. Verify all data is correctly restored
+
+## Storage Limitations
+
+<Info>
+  The photo is stored as a base64-encoded string in localStorage, which has a typical limit of 5-10MB per domain. Keep photos under 1MB to avoid storage issues.
+</Info>
+
+## Troubleshooting
+
+<Accordion title="Download button doesn't work">
+  Check your browser's download settings. Some browsers may block automatic downloads. Look for a notification bar at the top of the browser window asking for permission to download.
+</Accordion>
+
+<Accordion title="File won't load">
+  Ensure the JSON file hasn't been corrupted or edited. The file must maintain valid JSON format. Try opening it in a text editor to verify it starts with `{` and ends with `}`.
+</Accordion>
+
+<Accordion title="Data partially loaded">
+  If only some data appears after loading, the backup file may be from an older version or incomplete. Try creating a fresh backup and test the restore process.
+</Accordion>
+
+<Accordion title="Photo didn't restore">
+  Large photos may exceed localStorage limits. Try using a smaller photo (under 1MB) or restore the photo separately through the photo upload feature.
+</Accordion>
+
+## Related Features
+
+- [Data Management Guide](/guides/data-management) - Complete guide to managing your CV data
+- [Personal Information](/features/personal-info) - Understanding data storage mechanisms
+- [Photo Upload](/features/photo-upload) - Photo storage and localStorage usage

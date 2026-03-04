@@ -1,0 +1,279 @@
+---
+title: Professional & Personal References
+description: Manage professional and personal references with contact information and relationship details
+---
+
+## Overview
+
+The References module allows you to add two types of references to your CV:
+
+1. **Professional References** (Referencias Profesionales) - Former supervisors, colleagues, or business contacts
+2. **Personal References** (Referencias Personales) - Character references who can vouch for your personal qualities
+
+Both reference types support multiple entries with full contact information.
+
+## Implementation Location
+
+- **Professional References**: `~/workspace/source/src/app/perfil/ref-profesionales/page.jsx`
+- **Personal References**: `~/workspace/source/src/app/perfil/ref-personales/page.jsx`
+
+## Data Structure
+
+Both reference types use identical data structures:
+
+```javascript
+// Professional Reference
+{
+  id: "1707698400123",
+  nombre: "Juan Pérez",
+  empresa: "Tech Solutions Inc.",
+  cargo: "Senior Manager",
+  celular: "9999-8888"
+}
+
+// Personal Reference
+{
+  id: "1707698405678",
+  nombre: "María González",
+  empresa: "Community Center",
+  cargo: "Director",
+  celular: "8888-7777"
+}
+```
+
+## Cookie Storage
+
+Each reference type is stored in its own cookie:
+
+```javascript
+import Cookies from "js-cookie";
+
+// Professional References
+Cookies.set("ReferenciasProfesionales", JSON.stringify(referencias), {
+  expires: 3650
+});
+
+// Personal References
+Cookies.set("ReferenciasPersonales", JSON.stringify(referencias), {
+  expires: 3650
+});
+```
+
+## Professional References
+
+### Purpose
+
+Professional references are individuals who can speak to your work performance, skills, and professional conduct. Typically these are:
+
+- Former supervisors or managers
+- Colleagues from previous positions
+- Clients or business partners
+- Mentors or professional advisors
+
+### Form Fields
+
+<ParamField path="nombre" type="string" required>
+  Full name of the professional reference
+</ParamField>
+
+<ParamField path="empresa" type="string" required>
+  Company or organization where they work
+</ParamField>
+
+<ParamField path="cargo" type="string" required>
+  Their job title or position
+</ParamField>
+
+<ParamField path="celular" type="string" required>
+  Contact phone number (format: 9999-8888)
+</ParamField>
+
+### Adding Professional References
+
+<Steps>
+  <Step title="Navigate to Professional References">
+    Go to **PERFIL** → **Referencias Profesionales** in the sidebar
+  </Step>
+
+  <Step title="Click Add Reference">
+    Click the **Agregar** button to display the reference form
+  </Step>
+
+  <Step title="Fill in Details">
+    Enter the reference's name, company, position, and phone number. All fields are required.
+    
+    <Note>
+      The form validates that all fields are filled before enabling the save button.
+    </Note>
+  </Step>
+
+  <Step title="Save the Reference">
+    Click **Guardar** to add the reference to your list. The form will clear and you can add more references.
+  </Step>
+</Steps>
+
+### Managing Professional References
+
+```javascript
+// Add new reference
+function guardar() {
+  const fecha = new Date();
+  const id = fecha.getTime().toString();
+  
+  const data = {
+    id: id,
+    nombre: nombre,
+    empresa: empresa,
+    cargo: cargo,
+    celular: celular
+  };
+  
+  const tmp = JSON.parse(Cookies.get("ReferenciasProfesionales"));
+  tmp.push(data);
+  Cookies.set("ReferenciasProfesionales", JSON.stringify(tmp), {
+    expires: 3650
+  });
+}
+
+// Edit existing reference
+function editar(id) {
+  const tmp = JSON.parse(Cookies.get("ReferenciasProfesionales"));
+  const referencia = tmp.find(ref => ref.id === id);
+  // Populate form with existing data
+  setNombre(referencia.nombre);
+  setEmpresa(referencia.empresa);
+  setCargo(referencia.cargo);
+  setCelular(referencia.celular);
+}
+
+// Delete reference
+function eliminar(id) {
+  const tmp = JSON.parse(Cookies.get("ReferenciasProfesionales"));
+  const filtrado = tmp.filter(ref => ref.id !== id);
+  Cookies.set("ReferenciasProfesionales", JSON.stringify(filtrado), {
+    expires: 3650
+  });
+}
+```
+
+## Personal References
+
+### Purpose
+
+Personal references are individuals who can speak to your character, values, and personal qualities. These might include:
+
+- Long-time friends or acquaintances
+- Community leaders
+- Religious or civic organization contacts
+- Teachers or mentors (non-academic context)
+
+### Form Fields
+
+Personal references use the same form structure as professional references:
+
+<ParamField path="nombre" type="string" required>
+  Full name of the personal reference
+</ParamField>
+
+<ParamField path="empresa" type="string" required>
+  Their workplace or organization (can be "Particular" for personal contacts)
+</ParamField>
+
+<ParamField path="cargo" type="string" required>
+  Their role or relationship to you
+</ParamField>
+
+<ParamField path="celular" type="string" required>
+  Contact phone number (format: 9999-8888)
+</ParamField>
+
+### Adding Personal References
+
+The process is identical to professional references:
+
+1. Navigate to **PERFIL** → **Referencias Personales**
+2. Click **Agregar** to show the form
+3. Fill in all required fields
+4. Click **Guardar** to save
+
+<Tip>
+  You can add as many references as needed. Most CVs include 2-3 references of each type.
+</Tip>
+
+## Displaying References in CV Templates
+
+References automatically appear in all three CV templates if you've added any:
+
+### Template 1 (CV1)
+
+```jsx
+<RefProfesionales classBloque={borde} />
+<RefPersonales classBloque={borde} />
+```
+
+- Displays in the left column
+- Simple list format with name, company, position, and phone
+- Border separator between sections
+
+### Template 2 (CV2)
+
+```jsx
+<RefProfesionales classBloque={borde} />
+<RefPersonales classBloque={borde} />
+```
+
+- Displays in the dark sidebar
+- Contrasting text on dark background
+- Compact format for space efficiency
+
+### Template 3 (CV3)
+
+```jsx
+<RefProfesionales classBloque={borde} />
+<RefPersonales classBloque={borde} />
+```
+
+- Displays in the light gray sidebar
+- Clean, professional layout
+- Subtle separators between entries
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Choose Wisely" icon="user-check">
+    Select references who can speak specifically about your qualifications and character
+  </Card>
+  <Card title="Ask Permission" icon="handshake">
+    Always ask permission before listing someone as a reference
+  </Card>
+  <Card title="Keep Current" icon="clock">
+    Ensure contact information is up-to-date, especially phone numbers
+  </Card>
+  <Card title="Brief Them" icon="comment">
+    Let your references know what positions you're applying for
+  </Card>
+</CardGroup>
+
+## Common Questions
+
+<Accordion title="How many references should I include?">
+  Most CVs include 2-3 references of each type (professional and personal). Quality is more important than quantity - choose references who know you well and can speak specifically about your abilities.
+</Accordion>
+
+<Accordion title="What if I don't have professional references?">
+  If you're early in your career, you can use professors, internship supervisors, or volunteer coordinators as professional references. Personal references can fill gaps when professional ones are limited.
+</Accordion>
+
+<Accordion title="Should I include references on my CV?">
+  In many countries and industries, including references directly on the CV is standard practice. The application displays references if you've added them, but they won't appear if the sections are empty.
+</Accordion>
+
+<Accordion title="Can I edit or remove references later?">
+  Yes! Click the edit icon next to any reference to modify its details, or click the delete icon to remove it permanently. Changes are saved immediately to cookies.
+</Accordion>
+
+## Related Features
+
+- [Personal Information](/features/personal-info) - Contact details and professional summary
+- [Data Management](/guides/data-management) - Backup and restore your references data
+- [CV Templates](/features/templates) - See how references appear in each template design

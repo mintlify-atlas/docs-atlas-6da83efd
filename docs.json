@@ -43,7 +43,9 @@
               "features/work-experience",
               "features/education",
               "features/skills",
+              "features/references",
               "features/photo-upload",
+              "features/data-backup",
               "features/templates"
             ]
           },
@@ -53,7 +55,8 @@
               "guides/creating-cv",
               "guides/exporting-pdf",
               "guides/data-management",
-              "guides/customization"
+              "guides/customization",
+              "guides/faq"
             ]
           }
         ]
