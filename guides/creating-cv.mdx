@@ -1,0 +1,211 @@
+---
+title: Creating Your CV
+description: Complete workflow guide for building your professional CV from start to finish
+---
+
+This guide walks you through the complete process of creating a professional curriculum vitae using the CV Builder application.
+
+## Overview
+
+The CV Builder is a Next.js application that allows you to create professional resumes with multiple design templates. Your data is stored locally in your browser using cookies and localStorage, ensuring privacy and offline access.
+
+## Getting Started
+
+<Steps>
+  <Step title="Start the Application">
+    Navigate to the home page and click the **INICIAR** button to begin creating your CV.
+    
+    ```jsx
+    <Link href={"/perfil/info-personal"}>
+      <button className="Button text-sm mx-auto">INICIAR</button>
+    </Link>
+    ```
+    
+    This will take you to the Personal Information section.
+  </Step>
+
+  <Step title="Enter Personal Information">
+    Fill in your basic details in the Personal Information form:
+    
+    - **About Me**: Brief professional summary (optional)
+    - **Name**: Your first name
+    - **Last Name**: Your last name
+    - **Profession**: Your job title or profession
+    - **Address**: Your residential address
+    - **Email**: Contact email address
+    - **DNI**: National identification number
+    - **Phone**: Mobile phone number
+    - **Marital Status**: Select from dropdown (optional)
+    
+    Click **Actualizar** to save your information. The data is stored in cookies with a 3650-day (10-year) expiration:
+    
+    ```javascript
+    Cookies.set("InformacionPersonal", JSON.stringify(data), { 
+      expires: 3650 
+    });
+    ```
+  </Step>
+
+  <Step title="Upload Profile Photo">
+    Navigate to the profile photo section:
+    
+    1. Click **Seleccionar Foto...**
+    2. Choose an image file (max 1MB)
+    3. Crop and adjust the image using the interactive cropper
+    4. Preview your photo in the circular preview window
+    5. Click **Aceptar** to save
+    
+    The cropped image is stored in localStorage:
+    
+    ```javascript
+    localStorage.setItem(
+      "fotoPerfil",
+      cropper.getCroppedCanvas().toDataURL()
+    );
+    ```
+    
+    <Tip>
+      Toggle **Imagen Circular** to switch between circular and square photo shapes in your CV.
+    </Tip>
+  </Step>
+
+  <Step title="Add Work Experience">
+    Navigate to **Experiencia Laboral** (Work Experience) and add your employment history:
+    
+    - Company name
+    - Position/role
+    - Start and end dates
+    - Responsibilities and achievements
+    
+    You can add multiple work experiences. Each entry is stored in the `ExperienciaLaboral` cookie.
+  </Step>
+
+  <Step title="Add Education">
+    Go to **Información Académica** (Academic Information) and enter your educational background:
+    
+    - Institution name
+    - Degree or certification
+    - Graduation date
+    - Additional details
+    
+    Multiple education entries are supported and stored in the `InformacionAcademica` cookie.
+  </Step>
+
+  <Step title="Add Skills and Competencies">
+    Navigate to **Competencias** (Skills) to add:
+    
+    - **Habilidades Técnicas** (Technical Skills): Programming languages, software, tools
+    - **Habilidades Blandas** (Soft Skills): Communication, leadership, teamwork
+    - **Lenguajes** (Languages): Languages you speak and proficiency levels
+    
+    These are stored in the `Competencias` cookie.
+  </Step>
+
+  <Step title="Add References">
+    Add professional and personal references:
+    
+    - **Referencias Profesionales**: Previous employers, supervisors, colleagues
+    - **Referencias Personales**: Personal references who can vouch for your character
+    
+    Include name, relationship, contact information for each reference.
+  </Step>
+
+  <Step title="Choose a Design Template">
+    Navigate to **Diseños** and select from three professional templates:
+    
+    - **CV1**: Classic design with right-side photo placement
+    - **CV2**: Modern two-column layout with left sidebar
+    - **CV3**: Contemporary design with custom styling
+    
+    Each template displays your information in a different visual format while maintaining professionalism.
+  </Step>
+
+  <Step title="Preview Your CV">
+    Once you select a template, you'll see a live preview of your CV with all your entered information:
+    
+    - The CV is rendered in a fixed-size container (350x453px on mobile, 541x700px on desktop)
+    - All your data loads automatically from cookies and localStorage
+    - Photo shape (circular or square) is applied based on your preference
+    
+    ```javascript
+    useEffect(() => {
+      const image = localStorage.getItem("fotoPerfil");
+      if (image) setFotoPerfil(image);
+      const existe = Cookies.get("InformacionPersonal");
+      if (existe) setDatos(JSON.parse(existe));
+      const estadoFoto = localStorage.getItem("fotoRedonda") === "true";
+      setFotoRedonda(estadoFoto);
+    }, []);
+    ```
+  </Step>
+</Steps>
+
+## Best Practices
+
+### Content Guidelines
+
+- **Keep it concise**: Aim for a one-page CV when possible
+- **Use action verbs**: Start bullet points with strong action verbs
+- **Quantify achievements**: Include numbers and metrics where possible
+- **Proofread carefully**: Check for spelling and grammar errors
+
+### Photo Guidelines
+
+- Use a professional, high-quality photo
+- Ensure good lighting and clear visibility
+- Maintain a neutral background
+- Dress professionally
+- File size must be under 1MB
+
+### Data Entry Tips
+
+- Fill out all sections completely for the best results
+- Update information regularly to keep your CV current
+- Use consistent formatting across all sections
+- Save frequently by clicking the **Actualizar** button
+
+## Troubleshooting
+
+### Data Not Saving
+
+If your data isn't saving:
+
+1. Check that cookies are enabled in your browser
+2. Ensure you're clicking the **Actualizar** button after making changes
+3. Verify you're not in private/incognito mode
+4. Check browser storage limits haven't been reached
+
+### Photo Upload Issues
+
+<AccordionGroup>
+  <Accordion title="Image file too large">
+    If you see an error about file size:
+    - Reduce image file size to under 1MB (1000KB)
+    - Use image compression tools before uploading
+    - Consider cropping the image to reduce dimensions
+  </Accordion>
+  
+  <Accordion title="Cannot process image error">
+    If localStorage cannot store the image:
+    - The cropped image may be too large
+    - Try selecting a smaller portion of the image
+    - Check browser localStorage limits (typically 5-10MB)
+  </Accordion>
+</AccordionGroup>
+
+### Template Display Issues
+
+If your CV template doesn't display correctly:
+
+- Refresh the page to reload data from cookies
+- Ensure all required fields are filled in Personal Information
+- Check browser console for any JavaScript errors
+- Try a different browser if issues persist
+
+## Next Steps
+
+After creating your CV:
+
+- [Export your CV as PDF](/guides/exporting-pdf) for sharing and printing
+- [Backup your data](/guides/data-management) to prevent data loss
+- [Customize your CV](/guides/customization) with different templates and photo styles

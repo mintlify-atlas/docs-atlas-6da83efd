@@ -1,0 +1,485 @@
+---
+title: Photo Cropper Component
+description: Interactive photo cropper using react-cropper and cropperjs for profile image upload, cropping, and localStorage management
+---
+
+## Overview
+
+The `FotoPerfil` component provides a complete photo upload and cropping solution for user profile images. It integrates the `react-cropper` library with `cropperjs` to enable precise image cropping with live preview, file size validation, and localStorage persistence.
+
+**Location**: `src/components/FotoPerfil.jsx`
+
+## Dependencies
+
+```javascript
+import { useEffect, useState, useRef } from "react";
+import { Cropper } from "react-cropper";
+import Image from "next/image";
+import "cropperjs/dist/cropper.css";
+import { GoTrash } from "react-icons/go";
+import fotoPerfil from "../../public/user.svg";
+```
+
+### Required Packages
+
+- `react-cropper` - React wrapper for Cropper.js
+- `cropperjs` - Core cropping library
+- `next/image` - Next.js image optimization
+- `react-icons/go` - Trash icon for delete functionality
+
+### CSS Import
+
+```javascript
+import "cropperjs/dist/cropper.css";
+```
+
+This import is required for proper cropper styling.
+
+## Component State
+
+```javascript
+const [modal, setModal] = useState(false);              // Cropper modal visibility
+const [modalEliminar, setModalEliminar] = useState(false); // Delete confirmation modal
+const [image, setImage] = useState(defaultSrc);          // Source image for cropper
+const [cropData, setCropData] = useState("#");          // Cropped image data URL
+const [cropper, setCropper] = useState();               // Cropper instance
+const [btnAceptar, setBtnAceptar] = useState(false);    // Enable accept button
+const [btnEliminar, setBtnEliminar] = useState(false);  // Show delete button
+const [mensajeError, setMensajeError] = useState(false); // Error message state
+const [animacion, setAnimacion] = useState();           // Error animation class
+const [fileName, setFileName] = useState("Selecciona un archivo"); // Selected file name
+const [fotoRedonda, setFotoRedonda] = useState(false);  // Circular image toggle
+```
+
+Reference: `src/components/FotoPerfil.jsx:12-26`
+
+## LocalStorage Integration
+
+### Loading Saved Photo
+
+On component mount, load photo and circular state from localStorage:
+
+```javascript
+useEffect(() => {
+  const estado = localStorage.getItem("fotoRedonda") === "true";
+  if (estado) {
+    setFotoRedonda(estado);
+  }
+}, []);
+
+useEffect(() => {
+  const fotoPerfil = localStorage.getItem("fotoPerfil");
+  if (fotoPerfil) {
+    setCropData(fotoPerfil);
+    setBtnEliminar(true);
+  }
+  localStorage.setItem("fotoRedonda", fotoRedonda);
+});
+```
+
+Reference: `src/components/FotoPerfil.jsx:28-42`
+
+### Saving Photo
+
+Cropped image is saved as base64 data URL:
+
+```javascript
+localStorage.setItem(
+  "fotoPerfil",
+  cropper.getCroppedCanvas().toDataURL()
+);
+```
+
+Reference: `src/components/FotoPerfil.jsx:78-81`
+
+### Storage Keys
+
+- `fotoPerfil` - Base64 encoded cropped image
+- `fotoRedonda` - Boolean string ("true"/"false") for circular display
+
+## File Upload
+
+### File Input Ref
+
+```javascript
+const fileInputRef = useRef(null);
+
+const handleClick = () => {
+  setMensajeError(false);
+  fileInputRef.current.click();
+};
+```
+
+Reference: `src/components/FotoPerfil.jsx:23,97-100`
+
+### File Change Handler
+
+```javascript
+const onChange = (e) => {
+  setBtnAceptar(false);
+  e.preventDefault();
+  let files;
+  if (e.dataTransfer) {
+    files = e.dataTransfer.files;
+  } else if (e.target) {
+    files = e.target.files;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    setImage(reader.result);
+  };
+  reader.readAsDataURL(files[0]);
+  setFileName(files[0].name);
+
+  // Validate file size (1MB max)
+  if (files[0].size <= 1000000) {
+    setBtnAceptar(true);
+  }
+};
+```
+
+**File Size Limit**: 1MB (1,000,000 bytes)
+
+Reference: `src/components/FotoPerfil.jsx:51-71`
+
+## Cropper Configuration
+
+### Cropper Component
+
+```jsx
+<Cropper
+  src={image}
+  style={{ height: 300, width: "100%" }}
+  initialAspectRatio={1}
+  viewMode={1}
+  dragMode="move"
+  cropBoxMovable={false}
+  cropBoxResizable={false}
+  preview=".overflow-hidden"
+  minCropBoxHeight={10}
+  minCropBoxWidth={10}
+  background={false}
+  responsive={true}
+  autoCropArea={1}
+  checkOrientation={false}
+  onInitialized={(instance) => {
+    setCropper(instance);
+  }}
+  guides={true}
+/>
+```
+
+Reference: `src/components/FotoPerfil.jsx:192-211`
+
+### Key Settings
+
+| Property | Value | Description |
+|----------|-------|-------------|
+| `initialAspectRatio` | `1` | Square crop box |
+| `viewMode` | `1` | Restrict crop box to canvas |
+| `dragMode` | `"move"` | Move image, not crop box |
+| `cropBoxMovable` | `false` | Fixed crop box position |
+| `cropBoxResizable` | `false` | Fixed crop box size |
+| `autoCropArea` | `1` | Crop box fills entire canvas |
+| `background` | `false` | No background grid |
+| `responsive` | `true` | Rebuild on window resize |
+| `guides` | `true` | Show crop box guides |
+
+### Preview Integration
+
+The preview is linked via className:
+
+```jsx
+<Cropper
+  preview=".overflow-hidden"
+  // ... other props
+/>
+
+{/* Preview element */}
+<div className="overflow-hidden w-[140px] h-[140px] lg:w-[200px] lg:h-[200px] rounded-[50%]" />
+```
+
+Reference: `src/components/FotoPerfil.jsx:200,240`
+
+## Cropping & Saving
+
+### Get Cropped Data
+
+```javascript
+const getCropData = () => {
+  if (fileName !== "Selecciona un archivo") {
+    if (typeof cropper !== "undefined") {
+      setCropData(cropper.getCroppedCanvas().toDataURL());
+      try {
+        localStorage.setItem(
+          "fotoPerfil",
+          cropper.getCroppedCanvas().toDataURL()
+        );
+        setModal(!modal);
+      } catch (error) {
+        setMensajeError(true);
+        setAnimacion("animate-fade");
+      }
+    }
+  }
+};
+```
+
+**Error Handling**: If localStorage quota is exceeded, shows error message.
+
+Reference: `src/components/FotoPerfil.jsx:73-95`
+
+## Circular Image Toggle
+
+### Toggle Handler
+
+```javascript
+const handleToggle = () => {
+  const nuevoEstado = !fotoRedonda;
+  setFotoRedonda(nuevoEstado);
+  localStorage.setItem("fotoRedonda", nuevoEstado);
+};
+```
+
+Reference: `src/components/FotoPerfil.jsx:45-49`
+
+### Toggle UI
+
+```jsx
+<div className="flex items-center p-2 w-full justify-between">
+  <h1>Imagen Circular</h1>
+  <label className="flex items-center cursor-pointer">
+    <div className="relative">
+      <input
+        type="checkbox"
+        id="toggle"
+        checked={fotoRedonda}
+        onChange={handleToggle}
+        className="hidden"
+      />
+      <div
+        className={`block bg-gray-300 w-8 h-4 rounded-full ${
+          fotoRedonda ? "bg-green-500" : ""
+        }`}
+      ></div>
+      <div
+        className={`absolute left-0 top-0 bg-white w-4 h-4 rounded-full transition-transform ${
+          fotoRedonda ? "translate-x-full" : ""
+        }`}
+      ></div>
+    </div>
+  </label>
+</div>
+```
+
+Reference: `src/components/FotoPerfil.jsx:157-180`
+
+## Image Display
+
+### Profile Image Rendering
+
+```jsx
+<div className="w-[200px] md:w-[150px] rounded-[50%]">
+  {cropData === "#" ? (
+    <Image
+      src={fotoPerfil}
+      alt="fotoPerfil"
+      width={400}
+      height={400}
+      className={fotoRedonda ? "rounded-[50%]" : ""}
+    />
+  ) : (
+    <Image
+      src={cropData}
+      alt="fotoPerfil"
+      width={400}
+      height={400}
+      className={fotoRedonda ? "rounded-[50%]" : ""}
+    />
+  )}
+</div>
+```
+
+**Conditional Rendering**:
+- If no photo saved (`cropData === "#"`): Show default user icon
+- If photo saved: Show cropped image
+- Apply `rounded-[50%]` class if circular toggle enabled
+
+Reference: `src/components/FotoPerfil.jsx:118-136`
+
+## Delete Functionality
+
+### Delete Handler
+
+```javascript
+const eliminarFoto = () => {
+  localStorage.removeItem("fotoPerfil");
+  setModalEliminar(!modalEliminar);
+  setCropData(fotoPerfil);
+  setBtnEliminar(false);
+};
+```
+
+Reference: `src/components/FotoPerfil.jsx:107-112`
+
+### Delete Confirmation Modal
+
+```jsx
+{modalEliminar && (
+  <div className="fixed z-40 md:absolute md:z-50 top-0 left-0 h-screen w-screen flex justify-center items-center bg-red-600 bg-opacity-0 text-white">
+    <div className="CardModal md:w-max md:h-max py-20 md:p-20 mx-5 bg-black">
+      <h1 className="text-red-500 text-center text-xl font-bold">
+        Deseas eliminar la Foto permanentemente!!!
+      </h1>
+      <br />
+      <div className="flex gap-3 justify-center items-center">
+        <button type="button" className="Button" onClick={eliminarFoto}>
+          Aceptar
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setModalEliminar(false);
+          }}
+          className="Button"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+Reference: `src/components/FotoPerfil.jsx:274-297`
+
+## Modal Structure
+
+### Cropper Modal Layout
+
+The cropper modal is a full-screen overlay on mobile, card-based on desktop:
+
+```jsx
+{modal && (
+  <div className="fixed z-40 md:absolute md:z-50 top-0 left-0 h-screen w-screen flex justify-center items-center bg-red-600 bg-opacity-0 text-white">
+    <div className="CardModal flex flex-col gap-5 w-screen h-screen md:w-[800px] md:h-[460px] bg-gray-950 rounded-xl p-5">
+      {/* Cropper and preview */}
+      <div className="flex flex-col gap-3 md:flex-row flex-grow w-full h-full">
+        {/* Cropper section */}
+        <section className="w-full h-full">
+          <Cropper {...props} />
+          {/* File input button */}
+        </section>
+        {/* Preview section */}
+        <div className="Etiqueta flex flex-grow flex-col justify-between items-center p-[10px]">
+          <h1>Vista previa</h1>
+          <div className="overflow-hidden w-[140px] h-[140px] lg:w-[200px] lg:h-[200px] rounded-[50%]" />
+          {/* Error message */}
+        </div>
+      </div>
+      {/* Action buttons */}
+      <div className="flex gap-3 justify-end">
+        {btnAceptar && <button onClick={getCropData}>Aceptar</button>}
+        <button onClick={openmodal}>Cancelar</button>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+Reference: `src/components/FotoPerfil.jsx:185-271`
+
+## Error Handling
+
+### File Size Validation
+
+Only files ≤ 1MB enable the accept button:
+
+```javascript
+if (files[0].size <= 1000000) {
+  setBtnAceptar(true);
+}
+```
+
+### Storage Error
+
+If localStorage quota exceeded during save:
+
+```javascript
+try {
+  localStorage.setItem(
+    "fotoPerfil",
+    cropper.getCroppedCanvas().toDataURL()
+  );
+  setModal(!modal);
+} catch (error) {
+  setMensajeError(true);
+  setAnimacion("animate-fade");
+}
+```
+
+### Error Message Display
+
+```jsx
+{mensajeError && (
+  <h1 className={`Alerta ${animacion} font-semibold text-center`}>
+    Error, no se puede procesar. <br />
+    Por favor, seleccione otra imagen.
+  </h1>
+)}
+```
+
+Reference: `src/components/FotoPerfil.jsx:246-252`
+
+## Usage Example
+
+### In Sidebar Component
+
+```jsx
+import FotoPerfil from "./FotoPerfil";
+
+export default function Sidebar() {
+  return (
+    <div className="flex flex-col h-[85vh] border-r-[1px] border-slate-500 pr-10">
+      <div className="flex flex-col gap-3 flex-grow text-sm">
+        <FotoPerfil />
+        {/* Navigation links */}
+      </div>
+    </div>
+  );
+}
+```
+
+Reference: `src/components/Sidebar.jsx:5,27`
+
+## Integration Checklist
+
+1. Install dependencies:
+   ```bash
+   npm install react-cropper cropperjs
+   ```
+
+2. Import CSS in component:
+   ```javascript
+   import "cropperjs/dist/cropper.css";
+   ```
+
+3. Provide default user image in `/public/user.svg`
+
+4. Ensure localStorage is available (client-side only)
+
+5. Handle responsive layouts (mobile vs desktop modals)
+
+## Best Practices
+
+- Validate file size before processing (1MB limit)
+- Use base64 data URLs for localStorage (no external file storage)
+- Provide live preview for user feedback
+- Implement error handling for storage quota
+- Use refs for hidden file inputs
+- Lock crop box aspect ratio for consistent profile images
+- Provide delete functionality with confirmation
+- Support circular image display toggle
+- Use fixed crop box to simplify UX
+- Show filename after selection for confirmation

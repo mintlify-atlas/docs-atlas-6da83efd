@@ -1,0 +1,389 @@
+---
+title: Data Management
+description: Understand how your CV data is stored, backed up, and managed in the browser
+---
+
+The CV Builder stores all your information locally in your browser using cookies and localStorage. This ensures privacy, offline access, and gives you full control over your data.
+
+## Data Storage Overview
+
+Your CV data is stored in two locations:
+
+<CardGroup cols={2}>
+  <Card title="Cookies" icon="cookie-bite">
+    Stores structured CV data (personal info, experience, education, skills, references) with 10-year expiration.
+  </Card>
+  
+  <Card title="localStorage" icon="database">
+    Stores your profile photo as a base64-encoded image and photo shape preference.
+  </Card>
+</CardGroup>
+
+## How Data is Stored
+
+### Cookie Storage
+
+The application uses the `js-cookie` library to store CV information in browser cookies. Each section of your CV is stored as a separate cookie:
+
+```javascript
+import Cookies from "js-cookie";
+
+// Saving personal information with 10-year expiration
+Cookies.set("InformacionPersonal", JSON.stringify(data), { 
+  expires: 3650 
+});
+```
+
+#### Cookie Structure
+
+| Cookie Name | Contains | Example Data |
+|-------------|----------|-------------|
+| `InformacionPersonal` | Personal data, contact info, about me | Name, email, phone, address, profession |
+| `InformacionAcademica` | Educational background | Schools, degrees, graduation dates |
+| `ExperienciaLaboral` | Work experience | Companies, positions, dates, responsibilities |
+| `Competencias` | Skills and competencies | Technical skills, soft skills, languages |
+| `ReferenciasProfesionales` | Professional references | Names, companies, contact info |
+| `ReferenciasPersonales` | Personal references | Names, relationships, contact info |
+
+#### Cookie Expiration
+
+<Info>
+  All cookies are set with a **3650-day expiration** (approximately 10 years), ensuring your data persists long-term.
+</Info>
+
+```javascript
+// Cookie expiration implementation
+const info = {
+  sobremi: sobremi !== undefined ? sobremi : "",
+  nombre: nombre !== undefined ? nombre : "",
+  apellido: apellido !== undefined ? apellido : "",
+  profesion: profesion !== undefined ? profesion : "",
+  // ... other fields
+};
+
+Cookies.set("InformacionPersonal", JSON.stringify(info), { 
+  expires: 3650 
+});
+```
+
+### localStorage Storage
+
+Your profile photo and preferences are stored in localStorage:
+
+```javascript
+// Storing profile photo as base64-encoded image
+localStorage.setItem(
+  "fotoPerfil",
+  cropper.getCroppedCanvas().toDataURL()
+);
+
+// Storing photo shape preference
+localStorage.setItem("fotoRedonda", fotoRedonda);
+```
+
+#### localStorage Items
+
+| Key | Contains | Format |
+|-----|----------|--------|
+| `fotoPerfil` | Cropped profile photo | Base64-encoded data URL |
+| `fotoRedonda` | Photo shape preference | Boolean string ("true" or "false") |
+
+## Data Backup
+
+The application provides a JSON export feature to backup all your CV data.
+
+<Steps>
+  <Step title="Navigate to Backup Section">
+    Go to the data management or settings section (typically under **Cargar Información** or similar).
+  </Step>
+
+  <Step title="Click Download Backup">
+    Click the **Descargar** button in the backup section to download your data.
+  </Step>
+
+  <Step title="Save JSON File">
+    A JSON file will be downloaded with the filename format:
+    
+    ```
+    datos_[FirstName][LastName].json
+    ```
+  </Step>
+</Steps>
+
+### Backup File Structure
+
+The downloaded JSON file contains all your CV data:
+
+```javascript
+const contenidoJSON = {
+  Competencias: Competencias || [],
+  ExperienciaLaboral: ExperienciaLaboral || [],
+  InformacionPersonal: InformacionPersonal || {},
+  InformacionAcademica: InformacionAcademica || [],
+  ReferenciasProfesionales: ReferenciasProfesionales || [],
+  ReferenciasPersonales: ReferenciasPersonales || [],
+  fotoPerfil: fotoPerfil || "",
+};
+```
+
+### Backup Implementation
+
+```javascript
+async function descargarArchivoJSON() {
+  try {
+    // Retrieve data from cookies and localStorage
+    const fotoPerfil = localStorage.getItem("fotoPerfil");
+    const InformacionPersonal = Cookies.get("InformacionPersonal");
+    const InformacionAcademica = Cookies.get("InformacionAcademica");
+    const ExperienciaLaboral = Cookies.get("ExperienciaLaboral");
+    const Competencias = Cookies.get("Competencias");
+    const ReferenciasProfesionales = Cookies.get("ReferenciasProfesionales");
+    const ReferenciasPersonales = Cookies.get("ReferenciasPersonales");
+
+    // Parse personal info for filename
+    const ip = JSON.parse(InformacionPersonal);
+    const info = {
+      nombre: ip.nombre || "Nombre",
+      apellido: ip.apellido || "Apellido",
+    };
+
+    // Create JSON object with all data
+    const contenidoJSON = {
+      Competencias: Competencias || [],
+      ExperienciaLaboral: ExperienciaLaboral || [],
+      InformacionPersonal: InformacionPersonal || {},
+      InformacionAcademica: InformacionAcademica || [],
+      ReferenciasProfesionales: ReferenciasProfesionales || [],
+      ReferenciasPersonales: ReferenciasPersonales || [],
+      fotoPerfil: fotoPerfil || "",
+    };
+
+    // Convert to formatted JSON string
+    const contenidoCadenaJSON = JSON.stringify(contenidoJSON, null, 2);
+    const blob = new Blob([contenidoCadenaJSON], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+
+    // Create download link
+    const enlaceDescarga = document.createElement("a");
+    enlaceDescarga.href = url;
+    enlaceDescarga.download = `datos_${info.nombre}${info.apellido}.json`;
+
+    // Trigger download
+    document.body.appendChild(enlaceDescarga);
+    enlaceDescarga.click();
+
+    // Cleanup
+    URL.revokeObjectURL(url);
+    document.body.removeChild(enlaceDescarga);
+  } catch (error) {
+    console.error("Error al descargar el archivo JSON:", error);
+  }
+}
+```
+
+## Restoring from Backup
+
+To restore your data from a backup JSON file:
+
+<Steps>
+  <Step title="Navigate to Import Section">
+    Go to **Cargar Información** (Load Information) in the application.
+  </Step>
+
+  <Step title="Select Your Backup File">
+    Click the import/upload button and select your previously saved JSON file.
+  </Step>
+
+  <Step title="Confirm Import">
+    The application will parse the JSON and restore all your cookies and localStorage data.
+  </Step>
+
+  <Step title="Verify Data">
+    Navigate through each section to verify all your information was restored correctly.
+  </Step>
+</Steps>
+
+<Warning>
+  Restoring from backup will overwrite any existing data. Make sure to backup current data first if needed.
+</Warning>
+
+## Deleting Your Data
+
+You can permanently delete all your CV data from the browser.
+
+### Delete Process
+
+<Steps>
+  <Step title="Navigate to Delete Option">
+    Find the **Borrar** (Delete) button in the data management section.
+  </Step>
+
+  <Step title="Confirm Deletion">
+    A confirmation modal will appear:
+    
+    ```
+    Deseas eliminar los datos permanentemente!!!
+    ```
+    
+    Click **Aceptar** to confirm or **Cancelar** to cancel.
+  </Step>
+
+  <Step title="Data is Removed">
+    All cookies and localStorage items are deleted, and you're redirected to the home page.
+  </Step>
+</Steps>
+
+### Delete Implementation
+
+```javascript
+const borrar = () => {
+  // Remove all localStorage items
+  localStorage.removeItem("fotoPerfil");
+  localStorage.removeItem("fotoRedonda");
+  
+  // Remove all cookies
+  Cookies.remove("InformacionPersonal");
+  Cookies.remove("InformacionAcademica");
+  Cookies.remove("ExperienciaLaboral");
+  Cookies.remove("Competencias");
+  Cookies.remove("ReferenciasProfesionales");
+  Cookies.remove("ReferenciasPersonales");
+  
+  // Redirect to home page
+  router.push("/");
+};
+```
+
+<Warning>
+  Deletion is permanent and cannot be undone. Always create a backup before deleting data.
+</Warning>
+
+## Data Privacy & Security
+
+### Local Storage Benefits
+
+<CardGroup cols={2}>
+  <Card title="Privacy" icon="shield">
+    Your data never leaves your browser. No server storage means no data breaches or unauthorized access.
+  </Card>
+  
+  <Card title="Offline Access" icon="wifi">
+    Work on your CV without an internet connection. All data is available offline.
+  </Card>
+  
+  <Card title="Full Control" icon="user-lock">
+    You decide when to backup, export, or delete your data. No account required.
+  </Card>
+  
+  <Card title="No Tracking" icon="eye-slash">
+    Your personal information isn't tracked, analyzed, or shared with third parties.
+  </Card>
+</CardGroup>
+
+### Important Considerations
+
+<AccordionGroup>
+  <Accordion title="Browser-specific storage">
+    Data is stored per-browser. If you use multiple browsers or devices, your data won't sync automatically. Use JSON backup/restore to transfer data between browsers.
+  </Accordion>
+  
+  <Accordion title="Private browsing mode">
+    Data won't persist in private/incognito mode. Always use normal browsing mode when creating your CV.
+  </Accordion>
+  
+  <Accordion title="Clearing browser data">
+    Clearing browser cookies and local storage will delete your CV data. Always maintain a JSON backup.
+  </Accordion>
+  
+  <Accordion title="Browser updates">
+    Major browser updates rarely affect cookie/localStorage data, but it's good practice to maintain regular backups.
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+### Regular Backups
+
+<Tip>
+  Create a backup JSON file after major updates to your CV:
+  - After completing your initial CV
+  - Before making significant changes
+  - Monthly for active job seekers
+  - Before clearing browser data
+</Tip>
+
+### Backup Storage Locations
+
+- **Cloud Storage**: Upload to Google Drive, Dropbox, OneDrive
+- **Email**: Send to yourself as an attachment
+- **External Drive**: Store on USB drive or external hard drive
+- **Multiple Locations**: Keep copies in 2-3 different places
+
+### Data Organization
+
+```
+CV_Backups/
+├── 2026-03-01_datos_JohnDoe.json
+├── 2026-03-15_datos_JohnDoe.json
+└── 2026-04-01_datos_JohnDoe.json
+```
+
+Include dates in backup filenames for version control.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Data not persisting">
+    **Check:**
+    - Cookies are enabled in browser settings
+    - Not using private/incognito mode
+    - Browser storage isn't full
+    - No browser extensions blocking cookies
+  </Accordion>
+  
+  <Accordion title="Backup file won't download">
+    **Solutions:**
+    - Check browser download permissions
+    - Disable pop-up blocker temporarily
+    - Try a different browser
+    - Check available disk space
+  </Accordion>
+  
+  <Accordion title="Cannot restore from backup">
+    **Verify:**
+    - JSON file is valid and not corrupted
+    - File wasn't edited manually
+    - Browser supports the file format
+    - Try opening file in a text editor to check structure
+  </Accordion>
+  
+  <Accordion title="Photo not included in backup">
+    **Note:**
+    The profile photo IS included in backups as a base64 string in the `fotoPerfil` field. If missing:
+    - Re-upload your photo
+    - Try a smaller image file
+    - Check localStorage limits (typically 5-10MB)
+  </Accordion>
+</AccordionGroup>
+
+## Storage Limits
+
+### Browser Storage Quotas
+
+| Storage Type | Typical Limit | Notes |
+|--------------|---------------|-------|
+| Cookies | 4KB per cookie | Multiple cookies used |
+| localStorage | 5-10MB total | Mainly for profile photo |
+| Total CV Data | < 5MB typical | Includes all text and photo |
+
+<Info>
+  Profile photos are typically 50-500KB when base64-encoded, well within localStorage limits.
+</Info>
+
+## Next Steps
+
+- [Export your CV as PDF](/guides/exporting-pdf) for sharing
+- [Customize your CV](/guides/customization) with different templates
+- [Create your CV](/guides/creating-cv) to get started

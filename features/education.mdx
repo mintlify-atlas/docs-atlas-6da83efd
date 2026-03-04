@@ -1,0 +1,431 @@
+---
+title: Education
+description: Academic information management with multiple education levels, institutions, and date tracking stored in browser cookies
+---
+
+## Overview
+
+The Education module allows users to track their academic background across different education levels from secondary school through doctorate programs. Each entry includes the institution, degree obtained, and date range.
+
+## Implementation Location
+
+`~/workspace/source/src/app/perfil/info-academica/page.jsx`
+
+## Data Structure
+
+Each education entry is stored as:
+
+```javascript
+let nuevoObjeto = {
+  id: valorUnico,              // Timestamp-based unique ID
+  nivel: nivel,                // Education level
+  centro: centro,              // Educational institution
+  titulo: titulo,              // Degree/title obtained
+  mesInicio: mesInicio,        // Start month
+  anioInicio: anioInicio,      // Start year
+  mesFinal: mesFinal,          // End month (or "Actual")
+  anioFinal: anioF            // End year (empty if "Actual")
+}
+```
+
+## Cookie Storage
+
+Education records are stored as an array:
+
+```javascript
+import Cookies from "js-cookie";
+
+// Initialize
+const niveles = [];
+Cookies.set("InformacionAcademica", JSON.stringify(niveles), {
+  expires: 3650
+});
+```
+
+## Education Levels
+
+The application supports five education levels:
+
+```jsx
+<select
+  id="nivel"
+  value={nivel}
+  onChange={(e) => setNivel(e.target.value)}
+  className="Select w-2/2"
+>
+  <option value="Secundaria">Secundaria</option>
+  <option value="Superior">Superior</option>
+  <option value="Especializacion">Especialización</option>
+  <option value="Maestria">Maestría</option>
+  <option value="Doctorado">Doctorado</option>
+</select>
+```
+
+<CardGroup cols={2}>
+  <Card title="Secundaria" icon="graduation-cap">
+    Secondary/High school education
+  </Card>
+  
+  <Card title="Superior" icon="building-columns">
+    Higher education (undergraduate/bachelor's degree)
+  </Card>
+  
+  <Card title="Especialización" icon="certificate">
+    Specialization or professional certification
+  </Card>
+  
+  <Card title="Maestría" icon="user-graduate">
+    Master's degree programs
+  </Card>
+  
+  <Card title="Doctorado" icon="brain">
+    Doctoral/PhD programs
+  </Card>
+</CardGroup>
+
+## State Management
+
+```javascript
+const [niveles, setNiveles] = useState([]);           // All education records
+const [button, setButton] = useState(true);           // Toggle Add/Update mode
+const [bAgregar, setBAgregar] = useState(false);     // Button disable state
+const [identificador, setIdentificador] = useState("");
+const [nivel, setNivel] = useState("Secundaria");     // Default to Secundaria
+const [centro, setCentro] = useState("");
+const [titulo, setTitulo] = useState("");
+const [mesInicio, setMesInicio] = useState("Enero");
+const [anioInicio, setAnioInicio] = useState(2024);
+const [mesFinal, setMesFinal] = useState("Diciembre");
+const [anioFinal, setAnioFinal] = useState(2024);
+const [mostrarAnio, setMostrarAnio] = useState(true);
+```
+
+## Form Fields
+
+### Institution Information
+
+```jsx
+<section className="flex md:w-3/4">
+  <label htmlFor="centro" className="w-1/3">
+    Centro de Estudio:
+  </label>
+  <input
+    type="text"
+    id="centro"
+    value={centro}
+    onChange={(e) => setCentro(e.target.value)}
+    className="Input w-2/3"
+    autoComplete="off"
+  />
+</section>
+
+<section className="flex md:w-3/4">
+  <label htmlFor="titulo" className="w-1/3">
+    Titulo Obtenido:
+  </label>
+  <input
+    type="text"
+    id="titulo"
+    value={titulo}
+    onChange={(e) => setTitulo(e.target.value)}
+    className="Input w-2/3"
+    autoComplete="off"
+  />
+</section>
+```
+
+## Date Range Handling
+
+Similar to work experience, education supports ongoing programs:
+
+```jsx
+<select
+  id="mesFinal"
+  value={mesFinal}
+  onChange={(e) => {
+    setMesFinal(e.target.value);
+    if (e.target.value === "Actual") {
+      setMostrarAnio(false);
+    } else {
+      setMostrarAnio(true);
+    }
+  }}
+  className="Select"
+>
+  <option value="Actual">Actual</option>
+  {meses.map((mes, index) => (
+    <option key={index} value={mes}>
+      {mes}
+    </option>
+  ))}
+</select>
+
+{mostrarAnio && (
+  <select
+    id="anioFinal"
+    value={anioFinal}
+    onChange={(e) => setAnioFinal(e.target.value)}
+    className="Select"
+  >
+    {anios.map((anio, index) => (
+      <option key={index} value={anio}>
+        {anio}
+      </option>
+    ))}
+  </select>
+)}
+```
+
+## CRUD Operations
+
+### Create (Add New Entry)
+
+```javascript
+function guardar() {
+  if (!bAgregar) {
+    const fecha = new Date();
+    const id = fecha.getTime().toString();
+    
+    const data = cargarDatos(id);
+    const tmp = JSON.parse(Cookies.get("InformacionAcademica"));
+    tmp.push(data);
+    Cookies.set("InformacionAcademica", JSON.stringify(tmp), {
+      expires: 3650,
+    });
+    
+    limpiar();
+    obtenerNivelesDesdeCookies();
+    datosPorDefecto();
+  } else {
+    // Show error message
+    setVisible(true);
+    setAnimacion("animate-fade-right");
+  }
+}
+```
+
+### Read (Load Records)
+
+```javascript
+const obtenerNivelesDesdeCookies = () => {
+  const nivelesDesdeCookies = Cookies.get("InformacionAcademica");
+  if (nivelesDesdeCookies) {
+    setNiveles(JSON.parse(nivelesDesdeCookies));
+  }
+};
+
+useEffect(() => {
+  const niveles = [];
+  const existe = Cookies.get("InformacionAcademica");
+  if (!existe)
+    Cookies.set("InformacionAcademica", JSON.stringify(niveles), {
+      expires: 3650,
+    });
+  if (existe) obtenerNivelesDesdeCookies();
+}, []);
+```
+
+### Update (Edit Entry)
+
+```javascript
+function obtener(id) {
+  setButton(false);
+  const tmp = niveles.find((objeto) => objeto.id === id);
+  setIdentificador(tmp.id);
+  setNivel(tmp.nivel);
+  setCentro(tmp.centro);
+  setTitulo(tmp.titulo);
+  setMesInicio(tmp.mesInicio);
+  setAnioInicio(tmp.anioInicio);
+  setMesFinal(tmp.mesFinal);
+  if (tmp.mesFinal === "Actual") setMostrarAnio(false);
+  if (tmp.mesFinal !== "Actual") setAnioFinal(tmp.anioFinal);
+  irAlFormulario();
+}
+
+function actualizar() {
+  const nivel = cargarDatos();
+  const index = niveles.findIndex((objeto) => objeto.id === identificador);
+  if (index !== -1) {
+    niveles[index] = { ...niveles[index], ...nivel };
+    Cookies.set("InformacionAcademica", JSON.stringify(niveles), {
+      expires: 3650,
+    });
+    limpiar();
+    obtenerNivelesDesdeCookies();
+    datosPorDefecto();
+  }
+  
+  setTimeout(() => {
+    setButton(true);
+  }, 500);
+}
+```
+
+### Delete (Remove Entry)
+
+```javascript
+function eliminar(id) {
+  const index = niveles.findIndex((objeto) => objeto.id === id);
+  if (index !== -1) {
+    niveles.splice(index, 1);
+    Cookies.set("InformacionAcademica", JSON.stringify(niveles), {
+      expires: 3650,
+    });
+    obtenerNivelesDesdeCookies();
+  }
+}
+```
+
+## Validation
+
+Required fields are validated:
+
+```javascript
+function verificarCamposVacios() {
+  const todasVacias = !centro || !titulo;
+  
+  if (todasVacias) {
+    setBAgregar(true);
+  } else {
+    setBAgregar(false);
+  }
+}
+
+useEffect(() => {
+  verificarCamposVacios();
+});
+```
+
+Error message:
+
+```jsx
+{visible && (
+  <h1 id="mensaje" className={`MsjFallo ${animacion}`}>
+    Por favor ingresar: Centro de estudio y Titulo obtenido.
+  </h1>
+)}
+```
+
+## Helper Functions
+
+### Load Data from Form
+
+```javascript
+function cargarDatos(id) {
+  let valorUnico = null;
+  if (id === undefined) {
+    valorUnico = identificador;
+  } else {
+    valorUnico = id;
+  }
+  
+  let anioF = null;
+  if (mesFinal === "Actual") anioF = "";
+  if (mesFinal !== "Actual") anioF = anioFinal;
+  
+  let nuevoObjeto = {
+    id: valorUnico,
+    nivel: nivel,
+    centro: centro,
+    titulo: titulo,
+    mesInicio: mesInicio,
+    anioInicio: anioInicio,
+    mesFinal: mesFinal,
+    anioFinal: anioF,
+  };
+  return nuevoObjeto;
+}
+```
+
+### Reset to Defaults
+
+```javascript
+function datosPorDefecto() {
+  setNivel("Secundaria");
+  setMesInicio("Enero");
+  setAnioInicio(2024);
+  setMesFinal("Diciembre");
+  setAnioFinal(2024);
+  setMostrarAnio(true);
+}
+```
+
+### Clear Form
+
+```javascript
+function limpiar() {
+  setIdentificador("");
+  setNivel("");
+  setCentro("");
+  setTitulo("");
+  setMesInicio("");
+  setAnioInicio();
+  setMesFinal("");
+  setAnioFinal();
+}
+```
+
+## Display Section
+
+Education records are displayed in cards:
+
+```jsx
+{niveles.map((nivel) => (
+  <div key={nivel.id} className="Card">
+    <section className="text-xs md:text-sm">
+      <div className="flex gap-3 w-full">
+        <div className="w-1/3 Border-r">
+          <h1>Nivel educativo</h1>
+          <h1>Centro educativo</h1>
+          <h1>Titulo obtenido</h1>
+          <h1>Fecha de inicio</h1>
+          <h1>Fecha de finalización</h1>
+        </div>
+        <div className="w-2/3 truncate">
+          <h1>{nivel.nivel}</h1>
+          <h1>{nivel.centro}</h1>
+          <h1>{nivel.titulo}</h1>
+          <h1>{nivel.mesInicio} de {nivel.anioInicio}</h1>
+          <h1>
+            {nivel.mesFinal}{" "}
+            {nivel.mesFinal === "Actual" ? "" : `de ${nivel.anioFinal}`}
+          </h1>
+        </div>
+      </div>
+      <div className="flex-grow flex justify-end gap-3">
+        <button
+          className="Button mt-2"
+          type="button"
+          onClick={() => obtener(nivel.id)}
+        >
+          Editar
+        </button>
+        <button
+          className="Button mt-2"
+          type="button"
+          onClick={() => eliminar(nivel.id)}
+        >
+          Eliminar
+        </button>
+      </div>
+    </section>
+  </div>
+))}
+```
+
+## Smooth Scrolling
+
+When editing an entry, the form scrolls into view:
+
+```javascript
+const formulario = useRef(null);
+
+const irAlFormulario = () => {
+  formulario.current.scrollIntoView({ behavior: "smooth" });
+};
+```
+
+<Info>
+The education module follows the same patterns as work experience but simplified without the task management feature.
+</Info>

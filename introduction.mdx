@@ -1,0 +1,221 @@
+---
+title: Welcome to Curriculum Vitae
+description: Create professional CVs with ease using our intuitive CV builder
+mode: custom
+---
+
+<div className="relative bg-gradient-to-br from-[#fc4e67] via-[#fc4e67]/90 to-[#fca2ab] dark:from-[#03040c] dark:via-[#161616] dark:to-[#03040c] py-20">
+  <div className="max-w-6xl mx-auto px-6 lg:px-8">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <div className="lg:col-span-7">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white dark:text-gray-100 mb-6">
+          Build your professional CV in minutes
+        </h1>
+        <p className="text-lg sm:text-xl text-white/90 dark:text-gray-400 max-w-2xl mb-8">
+          Create stunning curriculum vitae with multiple professional templates, photo upload, and instant PDF export. Your data stays local and secure.
+        </p>
+        <div className="flex flex-wrap gap-4">
+          <a 
+            href="/quickstart" 
+            className="inline-block px-6 py-3 bg-white dark:bg-[#fc4e67] text-[#fc4e67] dark:text-white font-semibold rounded-lg hover:bg-gray-100 dark:hover:bg-[#e8435a] transition-colors no-underline"
+          >
+            Get started
+          </a>
+          <a 
+            href="/features/templates" 
+            className="inline-block px-6 py-3 border-2 border-white/30 dark:border-[#27272a] bg-white/10 dark:bg-[#1a1d27] text-white dark:text-gray-100 font-semibold rounded-lg hover:bg-white/20 dark:hover:bg-[#242838] hover:border-white/50 dark:hover:border-[#fc4e67] transition-colors no-underline"
+          >
+            Explore templates
+          </a>
+        </div>
+      </div>
+      <div className="lg:col-span-5 hidden lg:block">
+        <div className="relative">
+          <img 
+            src="https://media.brand.dev/e62c4596-1411-4527-b0b2-0c9c10c20a3b.png" 
+            alt="Curriculum Vitae Builder" 
+            className="w-full h-auto rounded-2xl shadow-2xl"
+            noZoom
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Quick start</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">Get your professional CV ready in four simple steps</p>
+  </div>
+
+  <Steps>
+    <Step title="Enter your personal information">
+      Start by filling in your basic details — name, profession, contact information, and a brief professional summary. All data is stored locally in your browser for privacy.
+      
+      ```javascript
+      // Data structure for personal info
+      {
+        nombre: "John",
+        apellido: "Doe",
+        profesion: "Software Engineer",
+        correo: "john@example.com",
+        celular: "1234-5678",
+        direccion: "City, Country"
+      }
+      ```
+    </Step>
+
+    <Step title="Add your experience and education">
+      Document your work history, educational background, skills, and references. Each section is optional — include only what's relevant for your target position.
+      
+      <Note>
+        All form fields auto-save to browser cookies with a 10-year expiration, so you can return anytime without losing your progress.
+      </Note>
+    </Step>
+
+    <Step title="Upload and crop your profile photo">
+      Add a professional photo using the built-in cropper tool. Choose between square or circular framing to match your preferred template style.
+      
+      <Tip>
+        Keep your image under 1MB for optimal performance. The cropper supports zoom, rotation, and precise positioning.
+      </Tip>
+    </Step>
+
+    <Step title="Choose a template and export to PDF">
+      Select from three professional CV designs, preview your final document, and download as a high-quality PDF ready for printing or email submission.
+      
+      ```javascript
+      // PDF generation using jsPDF and html2canvas
+      const pdf = new jsPDF("p", "pt", "letter");
+      html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/jpeg");
+        pdf.addImage(imgData, "JPEG", 0, 0, width, height);
+        pdf.save(`CV-${nombre}${apellido}.pdf`);
+      });
+      ```
+    </Step>
+  </Steps>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Key features</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">Everything you need to create a standout CV</p>
+  </div>
+
+  <CardGroup cols={2}>
+    <Card title="Multiple professional templates" icon="palette" href="/features/templates">
+      Choose from three distinct CV designs, each optimized for readability and professional presentation
+    </Card>
+    <Card title="Smart photo cropping" icon="image" href="/features/photo-upload">
+      Upload, crop, and position your profile photo with precision using our integrated cropper tool
+    </Card>
+    <Card title="Local data storage" icon="database" href="/guides/data-management">
+      Your personal information never leaves your device — all data is stored in browser cookies and localStorage
+    </Card>
+    <Card title="One-click PDF export" icon="file-pdf" href="/guides/exporting-pdf">
+      Generate print-ready PDF documents with high-quality rendering in seconds
+    </Card>
+    <Card title="Comprehensive sections" icon="list-check" href="/features/personal-info">
+      Track work experience, education, skills, languages, and professional references in organized forms
+    </Card>
+    <Card title="Responsive design" icon="mobile" href="/guides/customization">
+      Access and edit your CV from any device — desktop, tablet, or mobile
+    </Card>
+  </CardGroup>
+</div>
+
+<div className="mt-16 mb-16 max-w-5xl mx-auto px-6">
+  <div className="text-center mb-12">
+    <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Explore by topic</h2>
+    <p className="text-base text-gray-600 dark:text-gray-400">Dive deeper into specific features and workflows</p>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <a href="/features/personal-info" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] overflow-hidden no-underline hover:border-[#fc4e67] dark:hover:border-[#fc4e67] transition-colors bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-[#fc4e67] dark:group-hover:text-[#fc4e67] transition-colors">
+          Personal information
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Learn how to manage your contact details, professional summary, and personal data with auto-save functionality
+        </p>
+        <div className="flex items-center text-[#fc4e67] dark:text-[#fca2ab] text-sm font-medium group-hover:text-[#e8435a] dark:group-hover:text-[#fc4e67] transition-colors">
+          Read more
+          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+
+    <a href="/features/templates" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] overflow-hidden no-underline hover:border-[#fc4e67] dark:hover:border-[#fc4e67] transition-colors bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-[#fc4e67] dark:group-hover:text-[#fc4e67] transition-colors">
+          CV templates
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Explore three professional designs with different layouts, typography, and visual styles to match your industry
+        </p>
+        <div className="flex items-center text-[#fc4e67] dark:text-[#fca2ab] text-sm font-medium group-hover:text-[#e8435a] dark:group-hover:text-[#fc4e67] transition-colors">
+          View templates
+          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+
+    <a href="/guides/creating-cv" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] overflow-hidden no-underline hover:border-[#fc4e67] dark:hover:border-[#fc4e67] transition-colors bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-[#fc4e67] dark:group-hover:text-[#fc4e67] transition-colors">
+          Creating your CV
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Step-by-step walkthrough from initial data entry through template selection to final PDF export
+        </p>
+        <div className="flex items-center text-[#fc4e67] dark:text-[#fca2ab] text-sm font-medium group-hover:text-[#e8435a] dark:group-hover:text-[#fc4e67] transition-colors">
+          Start guide
+          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+
+    <a href="/guides/data-management" className="group block rounded-2xl border border-gray-200 dark:border-[#27272a] overflow-hidden no-underline hover:border-[#fc4e67] dark:hover:border-[#fc4e67] transition-colors bg-white dark:bg-[#1a1d27]">
+      <div className="p-6">
+        <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2 group-hover:text-[#fc4e67] dark:group-hover:text-[#fc4e67] transition-colors">
+          Data management
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          Understand how your data is stored, backup strategies, and how to export or delete your information
+        </p>
+        <div className="flex items-center text-[#fc4e67] dark:text-[#fca2ab] text-sm font-medium group-hover:text-[#e8435a] dark:group-hover:text-[#fc4e67] transition-colors">
+          Learn more
+          <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div className="mt-20 mb-16 max-w-5xl mx-auto px-6">
+  <div className="rounded-2xl border-2 border-[#fc4e67]/30 dark:border-[#fc4e67]/30 bg-gradient-to-br from-[#fc4e67]/5 to-[#fca2ab]/5 dark:from-[#161616] dark:to-[#1a1d27] p-8 lg:p-12 text-center">
+    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+      Ready to create your professional CV?
+    </h2>
+    <p className="text-base text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
+      Get started in minutes with our intuitive CV builder. No registration required — your data stays on your device.
+    </p>
+    <a 
+      href="/quickstart" 
+      className="inline-block px-8 py-3 bg-[#fc4e67] hover:bg-[#e8435a] text-white font-semibold rounded-lg transition-colors no-underline"
+    >
+      Start building now
+    </a>
+  </div>
+</div>

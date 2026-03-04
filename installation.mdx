@@ -1,0 +1,330 @@
+---
+title: Installation and setup
+description: Set up the Curriculum Vitae builder locally for development and customization
+---
+
+This guide walks you through installing and running the Curriculum Vitae builder on your local machine. The application is built with Next.js 14 and uses modern web technologies for CV generation.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (version 14 or higher)
+- **npm** (comes with Node.js) or **yarn**
+- A modern web browser (Chrome, Firefox, Safari, or Edge)
+
+## Technology stack
+
+The application is built with:
+
+- **Next.js 14.1.0** - React framework for production
+- **React 18** - UI library
+- **Tailwind CSS 3.3** - Utility-first CSS framework
+- **jsPDF 2.5.1** - PDF generation library
+- **html2canvas 1.4.1** - HTML to canvas conversion
+- **@react-pdf/renderer 3.3.8** - React PDF components
+- **js-cookie 3.0.5** - Cookie management
+- **react-cropper 2.3.3** - Image cropping for profile photos
+
+## Installation
+
+<Steps>
+  <Step title="Clone the repository">
+    First, clone the repository to your local machine:
+
+    ```bash
+    git clone <repository-url>
+    cd curriculum-vitae
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install all required Node.js packages using npm:
+
+    ```bash
+    npm install
+    ```
+
+    This command installs all dependencies listed in `package.json`:
+
+    ```json
+    {
+      "dependencies": {
+        "@react-pdf/renderer": "^3.3.8",
+        "html2canvas": "^1.4.1",
+        "js-cookie": "^3.0.5",
+        "jspdf": "^2.5.1",
+        "next": "14.1.0",
+        "react": "^18",
+        "react-cropper": "^2.3.3",
+        "react-dom": "^18",
+        "react-icons": "^5.0.1",
+        "react-pdf-tailwind": "^2.2.1"
+      }
+    }
+    ```
+
+    <Tip>
+      If you prefer yarn, you can run `yarn install` instead.
+    </Tip>
+  </Step>
+
+  <Step title="Start the development server">
+    Run the development server:
+
+    ```bash
+    npm run dev
+    ```
+
+    The application will start and be accessible at:
+
+    ```
+    http://localhost:3000
+    ```
+
+    <Note>
+      The development server includes hot-reloading, so changes you make to the code will automatically refresh in your browser.
+    </Note>
+  </Step>
+
+  <Step title="Verify installation">
+    Open your browser and navigate to `http://localhost:3000`. You should see the Curriculum Vitae homepage with:
+
+    - Welcome message
+    - Three CV template previews
+    - "INICIAR" (Start) button
+    - Navigation menu
+
+    If the page loads successfully, your installation is complete!
+  </Step>
+</Steps>
+
+## Available scripts
+
+The application includes several npm scripts defined in `package.json`:
+
+<CodeGroup>
+  ```bash Development
+  npm run dev
+  # Starts Next.js development server on http://localhost:3000
+  # Includes hot-reloading and detailed error messages
+  ```
+
+  ```bash Production Build
+  npm run build
+  # Creates an optimized production build
+  # Generates static files in the .next directory
+  ```
+
+  ```bash Production Server
+  npm start
+  # Runs the production build
+  # Must run 'npm run build' first
+  ```
+
+  ```bash Linting
+  npm run lint
+  # Runs ESLint to check code quality
+  # Uses Next.js ESLint configuration
+  ```
+</CodeGroup>
+
+## Project structure
+
+Understanding the project structure helps with customization:
+
+```
+curriculum-vitae/
+├── src/
+│   ├── app/
+│   │   ├── page.jsx                    # Homepage
+│   │   ├── layout.jsx                  # Root layout with navbar
+│   │   ├── globals.css                 # Global styles
+│   │   ├── perfil/
+│   │   │   ├── info-personal/         # Personal information form
+│   │   │   ├── info-academica/        # Academic information
+│   │   │   ├── experiencia-laboral/   # Work experience
+│   │   │   ├── competencias/          # Skills and competencies
+│   │   │   ├── ref-profesionales/     # Professional references
+│   │   │   ├── ref-personales/        # Personal references
+│   │   │   └── cargar-informacion/    # Load/save data
+│   │   ├── disenios/
+│   │   │   ├── cv1/                   # CV Template 1
+│   │   │   ├── cv2/                   # CV Template 2
+│   │   │   └── cv3/                   # CV Template 3
+│   │   └── importante/                # Important information page
+│   └── components/
+│       ├── Navbar.jsx                 # Navigation component
+│       ├── Footer.jsx                 # Footer component
+│       └── informacion/               # Reusable CV sections
+├── public/
+│   ├── home/                          # Template preview images
+│   ├── screen/                        # Screenshots
+│   └── fondo2.svg                     # Background image
+├── package.json
+└── README.md
+```
+
+## Configuration
+
+### Tailwind CSS
+
+The application uses Tailwind CSS with custom configuration:
+
+```javascript
+// tailwind.config.js includes:
+- Custom animations (tailwindcss-animated)
+- Responsive breakpoints
+- Custom color schemes
+```
+
+### Next.js Configuration
+
+The application uses Next.js 14 with:
+
+- **App Router** (not Pages Router)
+- **Client-side rendering** for forms and interactive components
+- **Google Fonts** integration (Inter, Titillium Web, Courgette, Roboto, Playfair Display)
+- **Image optimization** for profile photos and template previews
+
+### Data Storage
+
+The application stores data locally:
+
+```javascript
+// Cookie storage (expires in 10 years)
+Cookies.set('InformacionPersonal', JSON.stringify(data), { expires: 3650 });
+
+// localStorage for images
+localStorage.setItem('fotoPerfil', imageData);
+```
+
+<Warning>
+  Since data is stored in browser cookies and localStorage, clearing browser data will delete all CV information. Always back up data using the JSON export feature.
+</Warning>
+
+## Development tips
+
+<Accordion title="Adding a new CV template">
+  To create a new CV template:
+
+  1. Create a new directory in `src/app/disenios/` (e.g., `cv4/`)
+  2. Add a `page.jsx` file with your template component
+  3. Use the existing CV components from `src/components/informacion/`
+  4. Implement the PDF generation using jsPDF and html2canvas:
+
+  ```javascript
+  import jsPDF from 'jspdf';
+  import html2canvas from 'html2canvas';
+
+  function generarPDF() {
+    const pdf = new jsPDF('p', 'pt', 'letter');
+    const contenidoDiv = document.getElementById('contenido-pdf');
+    
+    html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+      const imgData = canvas.toDataURL('image/jpeg');
+      pdf.addImage(imgData, 'JPEG', 0, 0,
+        pdf.internal.pageSize.getWidth(),
+        pdf.internal.pageSize.getHeight());
+      pdf.save(`CV-${nombre}${apellido}.pdf`);
+    });
+  }
+  ```
+</Accordion>
+
+<Accordion title="Customizing form fields">
+  Form fields are defined in component state. To add a new field:
+
+  1. Add state variable in the page component:
+  ```javascript
+  const [newField, setNewField] = useState('');
+  ```
+
+  2. Add the field to the form JSX
+  3. Update the save function to include the new field in the cookie data
+  4. Update the load function to restore the new field value
+</Accordion>
+
+<Accordion title="Styling and theming">
+  The application uses:
+
+  - **Tailwind CSS** for utility classes
+  - **Custom CSS classes** in `globals.css`:
+    - `.Button` - Primary button style
+    - `.Titulo` - Section title style
+    - `.Alerta` - Alert/warning text style
+    - `.MsjExito` - Success message style
+
+  Modify these in `src/app/globals.css` to change the application theme.
+</Accordion>
+
+## Troubleshooting
+
+<Accordion title="Port 3000 is already in use">
+  If port 3000 is occupied, Next.js will automatically try the next available port (3001, 3002, etc.). 
+  
+  To specify a different port manually:
+
+  ```bash
+  npm run dev -- -p 3001
+  ```
+</Accordion>
+
+<Accordion title="PDF generation issues">
+  If PDFs are not generating correctly:
+
+  - Ensure the `contenido-pdf` div has fixed dimensions
+  - Check that html2canvas can access all images (CORS issues)
+  - Verify jsPDF is properly imported
+  - Test with a simple template first
+</Accordion>
+
+<Accordion title="Cookie/localStorage not persisting">
+  If data is not saving:
+
+  - Check browser privacy settings (cookies must be enabled)
+  - Ensure you're not in incognito/private browsing mode
+  - Verify cookie expiration is set correctly (`expires: 3650`)
+  - Check browser console for JavaScript errors
+</Accordion>
+
+## Building for production
+
+To create a production-ready build:
+
+<Steps>
+  <Step title="Build the application">
+    ```bash
+    npm run build
+    ```
+
+    This creates an optimized production build in the `.next` directory.
+  </Step>
+
+  <Step title="Test the production build">
+    ```bash
+    npm start
+    ```
+
+    Test the production build locally before deploying.
+  </Step>
+
+  <Step title="Deploy to Vercel (recommended)">
+    The easiest way to deploy is using [Vercel](https://vercel.com):
+
+    1. Push your code to GitHub
+    2. Import the repository in Vercel
+    3. Vercel automatically detects Next.js and configures deployment
+    4. Your application will be live at `your-project.vercel.app`
+
+    See the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more options.
+  </Step>
+</Steps>
+
+## Next steps
+
+- Read the [Quick Start Guide](/quickstart) to understand the user workflow
+- Explore the three CV templates to understand the rendering logic
+- Customize the templates to match your design preferences
+- Add new form fields for additional CV sections
+- Implement additional export formats (Word, plain text)

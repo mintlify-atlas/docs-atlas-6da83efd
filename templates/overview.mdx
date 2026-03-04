@@ -1,0 +1,112 @@
+---
+title: "Templates Overview"
+description: "Explore the three professionally designed CV templates available in the application, each with unique layouts and styling approaches"
+---
+
+The CV Builder application provides three distinct, professionally designed curriculum vitae templates. Each template offers a unique visual approach and layout structure to help users present their professional information effectively.
+
+## Available Templates
+
+All three templates are fully responsive, support custom profile photos, and generate high-quality PDF exports using jsPDF and html2canvas.
+
+### Template 1 (CV1)
+
+A classic two-column layout with elegant typography combining Roboto and Playfair Display fonts. Features a clean, professional design with minimal styling.
+
+**Best for:** Traditional industries, corporate positions, academic roles
+
+### Template 2 (CV2)
+
+A modern design with a dark sidebar and accent colors. Uses Saira Condensed and Arsenal fonts for a contemporary look.
+
+**Best for:** Creative professionals, tech industry, modern companies
+
+### Template 3 (CV3)
+
+A balanced design with a header banner and light gray sidebar. Combines Jost and Cairo fonts for a clean, modern aesthetic.
+
+**Best for:** Professional services, consulting, versatile applications
+
+## Template Comparison
+
+| Feature | Template 1 | Template 2 | Template 3 |
+|---------|------------|------------|------------|
+| **Layout** | Two columns | Dark sidebar + main | Header + two columns |
+| **Color Scheme** | Black & white | Dark gray (#424e5e) + cream (#fdedcb) | Gray (#585858) + light gray (#f2f2f2) |
+| **Primary Font** | Roboto (300) | Arsenal (400, 700) | Cairo (300) |
+| **Heading Font** | Playfair Display (600, 700) | Saira Condensed (300) | Jost (400, 700) |
+| **Photo Position** | Top right | Top left (sidebar) | Top center (header) |
+| **Profile Section** | Right column | Left sidebar | Right column |
+| **Experience** | Right column | Right column | Right column |
+| **Personal Info** | Left column | Left sidebar | Left column |
+| **Visual Style** | Classic, elegant | Modern, bold | Clean, balanced |
+| **Accent Elements** | Borders, dividers | Colored backgrounds | Subtle borders |
+
+## Common Features
+
+All templates share the following capabilities:
+
+### Data Sections
+
+- **Personal Information:** Name, profession, contact details, DNI, address, marital status
+- **Profile/About Me:** Personal summary section
+- **Work Experience:** Company, position, dates, and task lists
+- **Education:** Institution, degree, dates
+- **Technical Skills:** Bulleted list of technical competencies
+- **Soft Skills:** Interpersonal and professional skills
+- **Languages:** Language proficiencies
+- **Professional References:** Contact information for professional references
+- **Personal References:** Contact information for personal references
+
+### Technical Features
+
+- Profile photo upload with optional rounded corners
+- Data persistence using cookies and localStorage
+- Responsive design (mobile: 350x453px, desktop: 541x700px)
+- PDF generation with letter page size
+- High-quality export (scale: 5) using html2canvas
+- Conditional section rendering (only displays sections with data)
+
+### PDF Generation
+
+All templates use identical PDF generation settings:
+
+```javascript
+function generarPDF() {
+  const pdf = new jsPDF("p", "pt", "letter");
+  const contenidoDiv = document.getElementById("contenido-pdf");
+  contenidoDiv.width = 541;
+  contenidoDiv.height = 700;
+
+  html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/jpeg");
+    pdf.addImage(
+      imgData,
+      "JPEG",
+      0,
+      0,
+      pdf.internal.pageSize.getWidth(),
+      pdf.internal.pageSize.getHeight(),
+      "",
+      "FAST"
+    );
+    pdf.save(`CV-${datos.nombre}${datos.apellido}.pdf`);
+  });
+}
+```
+
+## Choosing a Template
+
+Consider these factors when selecting a template:
+
+1. **Industry Standards:** Some industries prefer traditional layouts (Template 1), while others embrace modern designs (Templates 2 & 3)
+2. **Information Density:** Templates with sidebars (2 & 3) can accommodate more information in a compact format
+3. **Visual Impact:** Template 2's dark sidebar creates the strongest visual contrast
+4. **Versatility:** Template 3 offers the most balanced approach for various industries
+5. **Personal Preference:** Choose the design that best represents your professional brand
+
+## Next Steps
+
+- [Template 1 Details](/templates/cv1) - Learn about the classic design
+- [Template 2 Details](/templates/cv2) - Explore the modern sidebar layout
+- [Template 3 Details](/templates/cv3) - Discover the balanced header design

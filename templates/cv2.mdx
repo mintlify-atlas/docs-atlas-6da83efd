@@ -1,0 +1,359 @@
+---
+title: "Template 2: Modern Sidebar Design"
+description: "A contemporary CV template with a dark sidebar, accent colors, and bold typography for creative professionals"
+---
+
+Template 2 features a modern, visually striking design with a dark sidebar and accent colors. This template is perfect for creative professionals and tech industry candidates who want to make a bold visual impression while maintaining professionalism.
+
+## Visual Design
+
+### Layout Structure
+
+The template uses a distinctive sidebar layout:
+
+- **Left Sidebar (40% width):** Dark background with photo, personal info, and skills
+- **Right Main Area (60% width):** White background with experience and education
+- **Full Height:** The sidebar extends the entire page height
+
+### Color Scheme
+
+- **Sidebar Background:** Dark gray (`#424e5e`)
+- **Sidebar Text:** White
+- **Main Background:** White
+- **Main Text:** Black
+- **Accent Color:** Cream/beige (`#fdedcb`) for section headers in main area
+- **Style:** Modern, high contrast, visually engaging
+
+### Typography
+
+The template combines two distinctive Google Fonts:
+
+```javascript
+import { Saira_Condensed, Arsenal } from "next/font/google";
+
+const nombreApellido = Saira_Condensed({
+  subsets: ["latin"],
+  weight: "300",
+});
+
+const contenido = Arsenal({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+```
+
+- **Name Font:** Saira Condensed Light (300) - Narrow, modern appearance
+- **Body Font:** Arsenal (400, 700) - Clean, readable text
+- **Font Sizes:**
+  - Mobile: 6.3px for body
+  - Desktop: 10px for body
+  - Name: Responsive clamp (0.6rem-1.3rem)
+
+## Component Structure
+
+### Left Sidebar
+
+The sidebar contains multiple sections with consistent styling:
+
+```jsx
+<section id="izquierda" className="w-2/5 h-[700px] bg-[#424e5e] text-white p-3 lg:p-5">
+  {/* Profile Photo */}
+  <div className="mx-auto w-auto h-auto mt-auto mb-2">
+    <Image
+      src={fotoPerfil}
+      alt="Foto de Perfil"
+      width={100}
+      height={100}
+      className={fotoRedonda ? "rounded-[50%] hidden lg:block" : "hidden lg:block"}
+    />
+  </div>
+  
+  {/* Name and Profession */}
+  <div className={`${nombreApellido.className} uppercase tracking-widest`}>
+    <h1>{datos.nombre} {datos.apellido}</h1>
+    <h5>{datos.profesion}</h5>
+  </div>
+  
+  {/* Profile Section */}
+  {datos.sobremi && (
+    <div className="mb-2">
+      <h2 className="font-bold border-b-[1px] mb-1">PERFIL</h2>
+      <p className="hyphens-manual">{datos.sobremi}</p>
+    </div>
+  )}
+  
+  {/* Information Components */}
+  <DatosPersonales
+    icono={cv2}
+    classBloque="mb-2"
+    classTitulo="border-b-[1px] mb-1"
+  />
+  <HabilidadesTecnicas
+    icono="▸&nbsp;"
+    classBloque="mb-2"
+    classTitulo="border-b-[1px] mb-1"
+  />
+  <HabilidadesBlandas
+    icono="▸&nbsp;"
+    classBloque="mb-2"
+    classTitulo="border-b-[1px] mb-1"
+  />
+</section>
+```
+
+**Visual Description:** The sidebar features a centered profile photo at the top, followed by the candidate's name in condensed uppercase letters. Personal information and skills are displayed with white text on the dark background, with section titles underlined.
+
+### Right Main Area
+
+The main area uses cream-colored backgrounds for section headers:
+
+```jsx
+<section id="derecha" className="w-3/5 md:h-[580px] border-l-[1px] p-3 pl-1 lg:p-5 lg:pl-3">
+  <Experiencia
+    icono="✓&nbsp;"
+    classBloque="mb-2"
+    classTitulo="bg-[#fdedcb] pl-1"
+    classBody="pl-3"
+  />
+  <Educacion
+    classBloque="mb-2"
+    classTitulo="bg-[#fdedcb] pl-1"
+    classBody="pl-3"
+  />
+  <RefProfesionales
+    classBloque="mb-2"
+    classTitulo="bg-[#fdedcb] pl-1"
+    classBody="pl-3"
+  />
+  <RefPersonales
+    classBloque="mb-2"
+    classTitulo="bg-[#fdedcb] pl-1"
+    classBody="pl-3"
+  />
+  <Lenguajes
+    icono="▸&nbsp;"
+    classBloque="mb-2"
+    classTitulo="bg-[#fdedcb] pl-1"
+    classBody="pl-3"
+  />
+</section>
+```
+
+**Visual Description:** Each section header has a cream background that creates visual separation. Content is indented for clear hierarchy.
+
+## Information Sections
+
+### Sidebar Sections (White on Dark)
+
+1. **Profile Photo**
+   - Centered at top of sidebar
+   - Size: 100px × 100px (desktop), 65px × 65px (mobile)
+   - Always circular on mobile
+
+2. **Name & Profession**
+   - Name in Saira Condensed, uppercase, wide tracking
+   - Profession in smaller font below
+
+3. **Profile/About Me**
+   - Optional section (displays if data exists)
+   - Underlined section title
+   - Hyphenation enabled for better text flow
+
+4. **Personal Information**
+   - Contact details with icons
+   - Icon set specific to Template 2
+
+5. **Technical Skills**
+   - Bulleted with ▸ symbol
+
+6. **Soft Skills**
+   - Bulleted with ▸ symbol
+
+### Main Area Sections (Dark on White)
+
+1. **Work Experience**
+   - Cream background header
+   - Task list with ✓ checkmark
+   - Indented content body
+
+2. **Education**
+   - Cream background header
+   - Institution and degree details
+   - Indented content body
+
+3. **Professional References**
+   - Cream background header
+   - Contact information
+
+4. **Personal References**
+   - Cream background header
+   - Contact information
+
+5. **Languages**
+   - Cream background header
+   - Bulleted with ▸ symbol
+
+## Icon Configuration
+
+Template 2 uses modern, filled icon styles:
+
+```javascript
+import { MdEmail } from "react-icons/md";
+import { FaLocationDot } from "react-icons/fa6";
+import { HiIdentification } from "react-icons/hi2";
+import { BsFillPhoneFill } from "react-icons/bs";
+import { GiLinkedRings } from "react-icons/gi";
+
+const cv2 = {
+  correo: <MdEmail />,
+  direccion: <FaLocationDot />,
+  dni: <HiIdentification />,
+  celular: <BsFillPhoneFill />,
+  estadocivil: <GiLinkedRings />,
+};
+```
+
+## Bullet Symbols
+
+Template 2 uses the right-pointing arrow symbol:
+```javascript
+const item = "▸&nbsp;"; // Used for skills and languages
+const checkmark = "✓&nbsp;"; // Used for experience tasks
+```
+
+## Styling Classes
+
+The template uses consistent class patterns:
+
+### Sidebar Sections
+```javascript
+classBloque="mb-2"              // 2 units margin bottom
+classTitulo="border-b-[1px] mb-1" // Bottom border, 1 unit margin
+```
+
+### Main Area Sections
+```javascript
+classBloque="mb-2"              // 2 units margin bottom
+classTitulo="bg-[#fdedcb] pl-1" // Cream background, left padding
+classBody="pl-3"                // Indented content
+```
+
+## Dimensions
+
+- **Mobile:** 350px × 453px
+- **Desktop:** 541px × 700px
+- **Sidebar Height:** Fixed at 700px (full page height)
+- **PDF Output:** Letter size (8.5" × 11")
+- **Padding:**
+  - Mobile: 12px (p-3)
+  - Desktop: 20px (p-5)
+
+## Data Management
+
+Identical to Template 1, using cookies and localStorage:
+
+```javascript
+useEffect(() => {
+  const image = localStorage.getItem("fotoPerfil");
+  if (image) setFotoPerfil(image);
+  
+  const existe = Cookies.get("InformacionPersonal");
+  if (existe) setDatos(JSON.parse(existe));
+  
+  const estadoFoto = localStorage.getItem("fotoRedonda") === "true";
+  setFotoRedonda(estadoFoto);
+}, []);
+```
+
+## PDF Generation Settings
+
+Identical configuration to other templates:
+
+```javascript
+function generarPDF() {
+  const pdf = new jsPDF("p", "pt", "letter");
+  const contenidoDiv = document.getElementById("contenido-pdf");
+  contenidoDiv.width = 541;
+  contenidoDiv.height = 700;
+
+  html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/jpeg");
+    pdf.addImage(imgData, "JPEG", 0, 0,
+      pdf.internal.pageSize.getWidth(),
+      pdf.internal.pageSize.getHeight(),
+      "", "FAST"
+    );
+    pdf.save(`CV-${datos.nombre}${datos.apellido}.pdf`);
+  });
+}
+```
+
+## Unique Features
+
+### Profile Section Placement
+
+Unlike Templates 1 and 3, the profile section appears in the sidebar rather than the main area:
+
+```jsx
+{datos.sobremi !== "" && datos.sobremi ? (
+  <div className="mb-2">
+    <h2 className="font-bold border-b-[1px] mb-1">PERFIL</h2>
+    <p htmlFor="" className="hyphens-manual">
+      {datos.sobremi}
+    </p>
+  </div>
+) : <></>}
+```
+
+This placement creates better visual balance and allows the main area to focus on experience and education.
+
+### Text Hyphenation
+
+The profile section uses manual hyphenation for better text flow in the narrow sidebar:
+```jsx
+className="hyphens-manual"
+```
+
+### Responsive Name Sizing
+
+The name uses CSS clamp for fluid typography:
+```jsx
+className="text-[clamp(0.6rem,5vw,0.9rem)] md:text-[clamp(1.2rem,5vw,1.3rem)]"
+```
+
+## Use Cases
+
+Template 2 is ideal for:
+
+- Creative professionals (designers, developers, marketers)
+- Tech industry positions
+- Startups and modern companies
+- Candidates who want to stand out visually
+- Roles that value innovation and contemporary thinking
+- Portfolio-style presentations
+
+## Design Considerations
+
+### Contrast and Readability
+
+The dark sidebar provides excellent contrast for white text, making contact information highly visible. The cream accent color in the main area adds visual interest without overwhelming the content.
+
+### Information Hierarchy
+
+The sidebar placement for personal information and skills creates a clear visual hierarchy, allowing recruiters to quickly scan contact details while focusing on experience in the main area.
+
+### Color Printing
+
+Note that the dark sidebar will consume significant ink when printed. For print-optimized versions, consider lighter alternative colors.
+
+## Customization Points
+
+Developers can customize:
+
+1. **Sidebar color:** Change `bg-[#424e5e]` to any color
+2. **Accent color:** Modify `bg-[#fdedcb]` for section headers
+3. **Font pairing:** Replace Saira Condensed and Arsenal
+4. **Bullet symbols:** Change ▸ and ✓ symbols
+5. **Section spacing:** Adjust `mb-2` and `mb-1` values
+6. **Column proportions:** Modify the 40/60 width split
+7. **Photo size and position:** Adjust Image dimensions and placement

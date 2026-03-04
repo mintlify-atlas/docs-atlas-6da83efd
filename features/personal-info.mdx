@@ -1,0 +1,212 @@
+---
+title: Personal Information
+description: Manage personal details and professional summary using a cookie-based form with React state management
+---
+
+## Overview
+
+The Personal Information feature allows users to enter and persist their core professional details. All data is stored in browser cookies with a 10-year expiration, ensuring long-term data persistence without requiring a backend.
+
+## Implementation Location
+
+`~/workspace/source/src/app/perfil/info-personal/page.jsx`
+
+## Data Structure
+
+The application stores personal information as a JSON object in cookies:
+
+```javascript
+const info = {
+  sobremi: "",      // Professional summary/about me
+  nombre: "",       // First name
+  apellido: "",     // Last name
+  profesion: "",    // Profession/occupation
+  direccion: "",    // Address
+  correo: "",       // Email
+  celular: "",      // Phone number
+  dni: "",          // National ID
+  estadocivil: ""  // Marital status
+}
+```
+
+## Cookie Storage
+
+Data is persisted using the `js-cookie` library:
+
+```javascript
+import Cookies from "js-cookie";
+
+// Initial save (on component mount)
+Cookies.set("InformacionPersonal", JSON.stringify(info), {
+  expires: 3650  // 10 years
+});
+```
+
+## Form Fields
+
+### Professional Summary
+
+**Field**: About Me (`sobremi`)  
+**Type**: Textarea  
+**Purpose**: Brief professional description highlighting skills, achievements, and career objectives
+
+```jsx
+<textarea
+  type="text"
+  id="sobremi"
+  value={sobremi}
+  onChange={(e) => setSobremi(e.target.value)}
+  className="w-full h-24 my-3 p-3 rounded-md bg-gray-800 resize-none"
+/>
+```
+
+### Personal Details
+
+<CardGroup cols={2}>
+  <Card title="Name Fields">
+    - **First Name** (`nombre`): Text input
+    - **Last Name** (`apellido`): Text input
+  </Card>
+  
+  <Card title="Contact Information">
+    - **Email** (`correo`): Email input
+    - **Phone** (`celular`): Max 9 chars, pattern: `9999-9999`
+  </Card>
+  
+  <Card title="Identification">
+    - **Address** (`direccion`): Text input
+    - **DNI** (`dni`): Max 15 chars, pattern: `0000-0000-00000`
+  </Card>
+  
+  <Card title="Professional Info">
+    - **Profession** (`profesion`): Text input for occupation
+    - **Marital Status** (`estadocivil`): Dropdown select
+  </Card>
+</CardGroup>
+
+## Marital Status Options
+
+The marital status field provides gendered options:
+
+```jsx
+<select
+  id="estadocivil"
+  value={estadocivil}
+  onChange={(e) => setEstadocivil(e.target.value)}
+  className="Select w-1/3"
+>
+  <option value="">Omitir</option>
+  <option value="Soltero">Soltero</option>
+  <option value="Soltera">Soltera</option>
+  <option value="Casado">Casado</option>
+  <option value="Casada">Casada</option>
+  <option value="Viudo">Viudo</option>
+  <option value="Viuda">Viuda</option>
+  <option value="Divorciado">Divorciado</option>
+  <option value="Divorciada">Divorciada</option>
+</select>
+```
+
+## State Management
+
+The component uses React hooks for state management:
+
+```javascript
+const [sobremi, setSobremi] = useState("");
+const [nombre, setNombre] = useState("");
+const [apellido, setApellido] = useState("");
+const [profesion, setProfesion] = useState("");
+const [direccion, setDireccion] = useState("");
+const [correo, setCorreo] = useState("");
+const [celular, setCelular] = useState("");
+const [dni, setDni] = useState("");
+const [estadocivil, setEstadocivil] = useState("");
+```
+
+## Save Functionality
+
+When the user clicks "Actualizar" (Update), the data is saved:
+
+```javascript
+function guardar() {
+  const data = nuevo();
+  Cookies.set("InformacionPersonal", JSON.stringify(data), { expires: 3650 });
+  
+  // Show success message with animation
+  setVisible(true);
+  setAnimacion("animate-fade-right");
+  setTimeout(() => {
+    setAnimacion("animate-fade-right animate-reverse animate-delay-[2000ms]");
+  }, 2000);
+  setTimeout(() => {
+    setVisible(false);
+  }, 3000);
+}
+```
+
+## Success Feedback
+
+The component displays a temporary success message:
+
+```jsx
+{visible && (
+  <h1 id="mensaje" className={`MsjExito ${animacion}`}>
+    Datos actualizados con éxito!!!
+  </h1>
+)}
+```
+
+<Tip>
+The success message appears with a fade-in animation, stays visible for 2 seconds, then fades out over 1 second.
+</Tip>
+
+## Data Loading
+
+On component mount, existing data is loaded from cookies:
+
+```javascript
+useEffect(() => {
+  const info = { /* default structure */ };
+  const existe = Cookies.get("InformacionPersonal");
+  if (!existe)
+    Cookies.set("InformacionPersonal", JSON.stringify(info), {
+      expires: 3650,
+    });
+  if (existe) cargarDatos(JSON.parse(existe));
+}, []);
+
+function cargarDatos(data) {
+  setSobremi(data.sobremi);
+  setNombre(data.nombre);
+  setApellido(data.apellido);
+  setProfesion(data.profesion);
+  setDireccion(data.direccion);
+  setCorreo(data.correo);
+  setCelular(data.celular);
+  setDni(data.dni);
+  setEstadocivil(data.estadocivil);
+}
+```
+
+## Input Validation
+
+<Warning>
+Currently, there is no built-in validation. The component accepts any input for most fields. Only `celular` and `dni` have `maxLength` and `pattern` attributes for basic formatting.
+</Warning>
+
+## Usage in CV Templates
+
+This data is consumed by all three CV templates (cv1, cv2, cv3) to populate the header and contact sections:
+
+```javascript
+const [datos, setDatos] = useState([]);
+
+useEffect(() => {
+  const existe = Cookies.get("InformacionPersonal");
+  if (existe) setDatos(JSON.parse(existe));
+}, []);
+
+// Then used in rendering:
+<h1>{datos.nombre}</h1>
+<h1>{datos.apellido}</h1>
+```

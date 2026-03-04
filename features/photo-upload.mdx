@@ -1,0 +1,386 @@
+---
+title: Photo Upload & Cropping
+description: Profile photo upload with react-cropper integration, circular crop preview, and localStorage persistence with 1MB size limit
+---
+
+## Overview
+
+The Photo Upload feature provides a complete image upload and cropping solution using the `react-cropper` library. Users can upload photos, crop them to a square aspect ratio, preview the result, and optionally display them as circular images in their CV.
+
+## Implementation Location
+
+`~/workspace/source/src/components/FotoPerfil.jsx`
+
+## Dependencies
+
+```javascript
+import { useEffect, useState, useRef } from "react";
+import { Cropper } from "react-cropper";
+import Image from "next/image";
+import "cropperjs/dist/cropper.css";
+import { GoTrash } from "react-icons/go";
+import fotoPerfil from "../../public/user.svg";
+```
+
+## Storage Mechanism
+
+Photos are stored in localStorage as base64-encoded data URLs:
+
+```javascript
+localStorage.setItem(
+  "fotoPerfil",
+  cropper.getCroppedCanvas().toDataURL()
+);
+
+// Circular toggle state also in localStorage
+localStorage.setItem("fotoRedonda", fotoRedonda);
+```
+
+<Warning>
+LocalStorage has a size limit. The component enforces a 1MB (1,000,000 bytes) maximum file size to prevent storage errors.
+</Warning>
+
+## State Management
+
+```javascript
+const [modal, setModal] = useState(false);                    // Crop modal visibility
+const [modalEliminar, setModalEliminar] = useState(false);   // Delete confirmation modal
+const [image, setImage] = useState(defaultSrc);               // Selected image for cropping
+const [cropData, setCropData] = useState("#");                // Cropped result
+const [cropper, setCropper] = useState();                     // Cropper instance
+const [btnAceptar, setBtnAceptar] = useState(false);         // Enable/disable accept button
+const [btnEliminar, setBtnEliminar] = useState(false);       // Show delete button
+const [mensajeError, setMensajeError] = useState(false);     // Error message display
+const [animacion, setAnimacion] = useState();                // Animation classes
+const [fileName, setFileName] = useState("Selecciona un archivo");
+const [fotoRedonda, setFotoRedonda] = useState(false);       // Circular/square toggle
+```
+
+## File Input Handling
+
+### Hidden File Input with Custom Button
+
+```javascript
+const fileInputRef = useRef(null);
+
+const handleClick = () => {
+  setMensajeError(false);
+  fileInputRef.current.click();
+};
+```
+
+### File Selection and Validation
+
+```javascript
+const onChange = (e) => {
+  setBtnAceptar(false);
+  e.preventDefault();
+  let files;
+  if (e.dataTransfer) {
+    files = e.dataTransfer.files;
+  } else if (e.target) {
+    files = e.target.files;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = () => {
+    setImage(reader.result);
+  };
+  reader.readAsDataURL(files[0]);
+  setFileName(files[0].name);
+  
+  // Validate file size (1MB max)
+  if (files[0].size <= 1000000) {
+    setBtnAceptar(true);
+  }
+};
+```
+
+## Cropper Configuration
+
+The component uses `react-cropper` with specific settings:
+
+```jsx
+<Cropper
+  src={image}
+  style={{ height: 300, width: "100%" }}
+  initialAspectRatio={1}         // Square crop
+  viewMode={1}                    // Restrict crop box to canvas
+  dragMode="move"                 // Move image, not crop box
+  cropBoxMovable={false}          // Fixed crop box
+  cropBoxResizable={false}        // Fixed size
+  preview=".overflow-hidden"      // Preview target class
+  minCropBoxHeight={10}
+  minCropBoxWidth={10}
+  background={false}              // No background grid
+  responsive={true}
+  autoCropArea={1}                // Full crop area
+  checkOrientation={false}
+  onInitialized={(instance) => {
+    setCropper(instance);
+  }}
+  guides={true}
+/>
+```
+
+### Key Cropper Settings
+
+<CardGroup cols={2}>
+  <Card title="Fixed Aspect Ratio">
+    `initialAspectRatio={1}` ensures square crops for profile photos
+  </Card>
+  
+  <Card title="Move Mode">
+    `dragMode="move"` allows repositioning the image within a fixed crop box
+  </Card>
+  
+  <Card title="Fixed Crop Box">
+    `cropBoxMovable={false}` and `cropBoxResizable={false}` prevent crop box manipulation
+  </Card>
+  
+  <Card title="Live Preview">
+    `preview=".overflow-hidden"` targets the preview container for real-time updates
+  </Card>
+</CardGroup>
+
+## Crop and Save
+
+```javascript
+const getCropData = () => {
+  if (fileName !== "Selecciona un archivo") {
+    if (typeof cropper !== "undefined") {
+      setCropData(cropper.getCroppedCanvas().toDataURL());
+      try {
+        localStorage.setItem(
+          "fotoPerfil",
+          cropper.getCroppedCanvas().toDataURL()
+        );
+        setModal(!modal);
+      } catch (error) {
+        // Handle localStorage quota exceeded
+        setMensajeError(true);
+        setAnimacion("animate-fade");
+      }
+    }
+  }
+};
+```
+
+## Error Handling
+
+If localStorage quota is exceeded:
+
+```jsx
+{mensajeError && (
+  <h1 className={`Alerta ${animacion} font-semibold text-center`}>
+    Error, no se puede procesar. <br />
+    Por favor, seleccione otra imagen.
+  </h1>
+)}
+```
+
+## Circular Photo Toggle
+
+Users can toggle between square and circular display:
+
+```javascript
+const handleToggle = () => {
+  const nuevoEstado = !fotoRedonda;
+  setFotoRedonda(nuevoEstado);
+  localStorage.setItem("fotoRedonda", nuevoEstado);
+};
+
+// Load on mount
+useEffect(() => {
+  const estado = localStorage.getItem("fotoRedonda") === "true";
+  if (estado) {
+    setFotoRedonda(estado);
+  }
+}, []);
+```
+
+### Toggle UI
+
+```jsx
+<div className="flex items-center p-2 w-full justify-between">
+  <h1>Imagen Circular</h1>
+  <label className="flex items-center cursor-pointer">
+    <div className="relative">
+      <input
+        type="checkbox"
+        id="toggle"
+        checked={fotoRedonda}
+        onChange={handleToggle}
+        className="hidden"
+      />
+      <div
+        className={`block bg-gray-300 w-8 h-4 rounded-full ${
+          fotoRedonda ? "bg-green-500" : ""
+        }`}
+      ></div>
+      <div
+        className={`absolute left-0 top-0 bg-white w-4 h-4 rounded-full transition-transform ${
+          fotoRedonda ? "translate-x-full" : ""
+        }`}
+      ></div>
+    </div>
+  </label>
+</div>
+```
+
+## Photo Display
+
+The component displays the photo with conditional circular styling:
+
+```jsx
+{cropData === "#" ? (
+  <Image
+    src={fotoPerfil}
+    alt="fotoPerfil"
+    width={400}
+    height={400}
+    className={fotoRedonda ? "rounded-[50%]" : ""}
+  ></Image>
+) : (
+  <Image
+    src={cropData}
+    alt="fotoPerfil"
+    width={400}
+    height={400}
+    className={fotoRedonda ? "rounded-[50%]" : ""}
+  ></Image>
+)}
+```
+
+## Delete Functionality
+
+### Delete Confirmation Modal
+
+```jsx
+{modalEliminar && (
+  <div className="fixed z-40 md:absolute md:z-50 top-0 left-0 h-screen w-screen flex justify-center items-center">
+    <div className="CardModal md:w-max md:h-max py-20 md:p-20 mx-5 bg-black">
+      <h1 className="text-red-500 text-center text-xl font-bold">
+        Deseas eliminar la Foto permanentemente!!!
+      </h1>
+      <br />
+      <div className="flex gap-3 justify-center items-center">
+        <button type="button" className="Button" onClick={eliminarFoto}>
+          Aceptar
+        </button>
+        <button
+          type="button"
+          onClick={() => setModalEliminar(false)}
+          className="Button"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+### Delete Function
+
+```javascript
+const eliminarFoto = () => {
+  localStorage.removeItem("fotoPerfil");
+  setModalEliminar(!modalEliminar);
+  setCropData(fotoPerfil);  // Reset to default avatar
+  setBtnEliminar(false);
+};
+```
+
+## Load Photo on Mount
+
+```javascript
+useEffect(() => {
+  const fotoPerfil = localStorage.getItem("fotoPerfil");
+  if (fotoPerfil) {
+    setCropData(fotoPerfil);
+    setBtnEliminar(true);  // Show delete button
+  }
+  localStorage.setItem("fotoRedonda", fotoRedonda);
+});
+```
+
+## Custom File Input
+
+```jsx
+<input
+  type="file"
+  className="text-white border-red-700 hidden"
+  ref={fileInputRef}
+  onChange={onChange}
+/>
+
+<div className="flex items-center text-sm max-w-max">
+  <button
+    onClick={handleClick}
+    type="button"
+    className="border-[1px] rounded-none text-xs md:text-sm py-1 px-2 bg-slate-900 w-[120px] md:w-[150px]"
+  >
+    Seleccionar Archivo
+  </button>
+  <p className="border-[1px] border-l-0 px-3 py-1 text-xs md:text-sm w-[180px] md:w-[320px] truncate">
+    {fileName}
+  </p>
+</div>
+```
+
+## Live Preview
+
+The cropper provides real-time preview:
+
+```jsx
+<div className="overflow-hidden w-[140px] h-[140px] lg:w-[200px] lg:h-[200px] rounded-[50%]" />
+```
+
+<Note>
+The preview element has an `overflow-hidden` class that the Cropper uses as a target for live preview rendering.
+</Note>
+
+## Modal Structure
+
+The cropping modal is a full-screen overlay:
+
+```jsx
+{modal && (
+  <div className="fixed z-40 md:absolute md:z-50 top-0 left-0 h-screen w-screen flex justify-center items-center bg-red-600 bg-opacity-0 text-white">
+    <div className="CardModal flex flex-col gap-5 w-screen h-screen md:w-[800px] md:h-[460px] bg-gray-950 rounded-xl p-5">
+      {/* Cropper and controls */}
+      <div className="flex gap-3 justify-end">
+        {btnAceptar && (
+          <button type="button" className="Button" onClick={getCropData}>
+            Aceptar
+          </button>
+        )}
+        <button type="button" className="Button" onClick={openmodal}>
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+## Usage in CV Templates
+
+All three CV templates consume this photo:
+
+```javascript
+const [fotoPerfil, setFotoPerfil] = useState(defaultSrc);
+const [fotoRedonda, setFotoRedonda] = useState(false);
+
+useEffect(() => {
+  const image = localStorage.getItem("fotoPerfil");
+  if (image) setFotoPerfil(image);
+  const estadoFoto = localStorage.getItem("fotoRedonda") === "true";
+  setFotoRedonda(estadoFoto);
+}, []);
+```
+
+<Tip>
+The 1MB file size limit ensures images can be stored in localStorage without exceeding browser quota limits, which typically range from 5-10MB per domain.
+</Tip>

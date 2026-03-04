@@ -1,0 +1,401 @@
+---
+title: Work Experience
+description: Dynamic work experience tracking with task management, date ranges, and CRUD operations stored in browser cookies
+---
+
+## Overview
+
+The Work Experience module allows users to add, edit, and delete multiple work experiences. Each experience includes company name, job title, date ranges, and a list of tasks/responsibilities.
+
+## Implementation Location
+
+`~/workspace/source/src/app/perfil/experiencia-laboral/page.jsx`
+
+## Data Structure
+
+Each work experience entry is stored as:
+
+```javascript
+const nuevoObjeto = {
+  id: valorUnico,              // Timestamp-based unique ID
+  empresa: empresa,            // Company name
+  cargo: cargo,                // Job title/position
+  mesInicio: mesInicio,        // Start month
+  anioInicio: anioInicio,      // Start year
+  mesFinal: mesFinal,          // End month (or "Actual")
+  anioFinal: anioF,            // End year (empty if "Actual")
+  tareas: tareas              // Array of task objects
+}
+```
+
+### Task Object Structure
+
+```javascript
+const Nueva = {
+  id: fecha.getTime().toString(),
+  tarea: tarea
+}
+```
+
+## Cookie Storage
+
+Experiences are stored as an array in cookies:
+
+```javascript
+import Cookies from "js-cookie";
+
+// Initialize empty array
+const experiencia = [];
+Cookies.set("ExperienciaLaboral", JSON.stringify(experiencia), {
+  expires: 3650
+});
+
+// Adding new experience
+const tmp = JSON.parse(Cookies.get("ExperienciaLaboral"));
+tmp.push(data);
+Cookies.set("ExperienciaLaboral", JSON.stringify(tmp), { expires: 3650 });
+```
+
+## State Management
+
+The component manages extensive state for form handling and UI control:
+
+```javascript
+const [button, setButton] = useState(true);           // Toggle Add/Update button
+const [bAgregar, setBAgregar] = useState(false);     // Disable button if fields empty
+const [experiencia, setExperiencia] = useState([]);   // All experiences
+const [identificador, setIdentificador] = useState(""); // Current editing ID
+const [empresa, setEmpresa] = useState("");
+const [cargo, setCargo] = useState("");
+const [mesInicio, setMesInicio] = useState("Enero");
+const [anioInicio, setAnioInicio] = useState(2024);
+const [mesFinal, setMesFinal] = useState("Diciembre");
+const [anioFinal, setAnioFinal] = useState(2024);
+const [mostrarAnio, setMostrarAnio] = useState(true); // Hide year if "Actual"
+const [tareas, setTareas] = useState([]);
+const [tarea, setTarea] = useState("");
+```
+
+## Date Handling
+
+### Current Employment
+
+Users can mark a position as current by selecting "Actual":
+
+```jsx
+<select
+  id="mesFinal"
+  value={mesFinal}
+  onChange={(e) => {
+    setMesFinal(e.target.value);
+    if (e.target.value === "Actual") {
+      setMostrarAnio(false);
+    } else {
+      setMostrarAnio(true);
+    }
+  }}
+  className="Select"
+>
+  <option value="Actual">Actual</option>
+  {meses.map((mes, index) => (
+    <option key={index} value={mes}>
+      {mes}
+    </option>
+  ))}
+</select>
+
+{mostrarAnio && (
+  <select
+    id="anioFinal"
+    value={anioFinal}
+    onChange={(e) => setAnioFinal(e.target.value)}
+  >
+    {/* Year options */}
+  </select>
+)}
+```
+
+### Date Data Source
+
+Months and years are imported from a data file:
+
+```javascript
+import fechas from "@/data/fechas";
+
+const meses = fechas.meses;
+const anios = fechas.anios;
+```
+
+## Task Management
+
+### Adding Tasks
+
+Users can add multiple tasks to each experience:
+
+```javascript
+function agregar() {
+  if (tarea) {
+    const fecha = new Date();
+    const Nueva = {
+      id: fecha.getTime().toString(),
+      tarea: tarea,
+    };
+    setTareas([...tareas, Nueva]);
+    setTarea("");
+  }
+}
+```
+
+### Task UI
+
+```jsx
+<div className="flex gap-1 md:gap-3">
+  <input
+    type="text"
+    id="tarea"
+    value={tarea}
+    onChange={(e) => setTarea(e.target.value)}
+    className="Input flex-grow"
+  />
+  <button
+    type="button"
+    onClick={() => agregar()}
+    className="Button lg:text-md"
+  >
+    Añadir
+  </button>
+</div>
+```
+
+### Task Display
+
+Tasks are displayed sorted by length:
+
+```jsx
+{tareas
+  .slice()
+  .sort((a, b) => ordenarPorLongitud(a, b))
+  .map((tarea) => (
+    <div key={tarea.id} className="flex justify-between items-start w-full">
+      <div className="flex gap-3">
+        <h1>✔</h1>
+        <h1>{tarea.tarea}</h1>
+      </div>
+      <button
+        type="button"
+        onClick={() => eliminarTarea(tarea.id)}
+      >
+        <IoIosCloseCircleOutline className="text-lg Alerta" />
+      </button>
+    </div>
+  ))}
+```
+
+### Sorting Function
+
+```javascript
+const ordenarPorLongitud = (a, b, propiedad) => {
+  return a.tarea.length - b.tarea.length;
+};
+```
+
+## CRUD Operations
+
+### Create (Add New Experience)
+
+```javascript
+function guardar() {
+  if (!bAgregar) {
+    const fecha = new Date();
+    const id = fecha.getTime().toString();
+    
+    const data = cargarDatos(id);
+    const tmp = JSON.parse(Cookies.get("ExperienciaLaboral"));
+    tmp.push(data);
+    Cookies.set("ExperienciaLaboral", JSON.stringify(tmp), { expires: 3650 });
+    
+    limpiar();
+    obtenerExperienciaCookies();
+    datosPorDefecto();
+  }
+}
+```
+
+### Read (Load from Cookies)
+
+```javascript
+const obtenerExperienciaCookies = () => {
+  const experienciaCookies = Cookies.get("ExperienciaLaboral");
+  if (experienciaCookies) {
+    setExperiencia(JSON.parse(experienciaCookies));
+  }
+};
+```
+
+### Update (Edit Experience)
+
+```javascript
+function obtener(id) {
+  setButton(false);
+  const tmp = experiencia.find((objeto) => objeto.id === id);
+  setIdentificador(tmp.id);
+  setEmpresa(tmp.empresa);
+  setCargo(tmp.cargo);
+  setMesInicio(tmp.mesInicio);
+  setAnioInicio(tmp.anioInicio);
+  setMesFinal(tmp.mesFinal);
+  if (tmp.mesFinal === "Actual") setMostrarAnio(false);
+  if (tmp.mesFinal !== "Actual") setAnioFinal(tmp.anioFinal);
+  setTareas(tmp.tareas);
+  irAlFormulario();
+}
+
+function actualizar() {
+  const exp = cargarDatos();
+  const index = experiencia.findIndex(
+    (objeto) => objeto.id === identificador
+  );
+  if (index !== -1) {
+    experiencia[index] = { ...experiencia[index], ...exp };
+    Cookies.set("ExperienciaLaboral", JSON.stringify(experiencia), {
+      expires: 3650,
+    });
+    limpiar();
+    obtenerExperienciaCookies();
+    datosPorDefecto();
+  }
+  setTimeout(() => {
+    setButton(true);
+  }, 500);
+}
+```
+
+### Delete (Remove Experience)
+
+```javascript
+function eliminar(id) {
+  const index = experiencia.findIndex((objeto) => objeto.id === id);
+  if (index !== -1) {
+    experiencia.splice(index, 1);
+    Cookies.set("ExperienciaLaboral", JSON.stringify(experiencia), {
+      expires: 3650,
+    });
+    obtenerExperienciaCookies();
+  }
+}
+```
+
+## Validation
+
+The component validates required fields:
+
+```javascript
+function verificarCamposVacios() {
+  const todasVacias = !empresa || !cargo;
+  
+  if (todasVacias) {
+    setBAgregar(true);  // Disable button
+  } else {
+    setBAgregar(false); // Enable button
+  }
+}
+
+useEffect(() => {
+  verificarCamposVacios();
+});
+```
+
+Error message display:
+
+```jsx
+{visible && (
+  <h1 id="mensaje" className={`MsjFallo ${animacion}`}>
+    Por favor ingresar: Nombre de la Empresa y el Cargo.
+  </h1>
+)}
+```
+
+## UI Features
+
+### Form Reference for Scrolling
+
+When editing, the form scrolls into view:
+
+```javascript
+const formulario = useRef(null);
+
+const irAlFormulario = () => {
+  formulario.current.scrollIntoView({ behavior: "smooth" });
+};
+```
+
+### Dynamic Button States
+
+```jsx
+{button ? (
+  <button
+    type="button"
+    onClick={() => guardar()}
+    className="Button"
+  >
+    Agregar
+  </button>
+) : (
+  <div className="flex gap-3">
+    <button
+      type="button"
+      onClick={() => actualizar()}
+      className="Button"
+    >
+      Actualizar
+    </button>
+    <button
+      className="Button"
+      onClick={() => cancelar()}
+    >
+      Cancelar
+    </button>
+  </div>
+)}
+```
+
+## Experience Display
+
+Saved experiences are displayed in cards:
+
+```jsx
+{experiencia.map((exp) => (
+  <div key={exp.id} className="Card">
+    <section className="text-xs md:text-sm">
+      <div className="flex gap-3 w-full">
+        <div className="w-3/6 Border-r">
+          <h1>Empresa</h1>
+          <h1>Cargo</h1>
+          <h1>Fecha de Inicio</h1>
+          <h1>Fecha de Finalización</h1>
+          <h1>Tareas</h1>
+        </div>
+        <div className="w-full">
+          <h1>{exp.empresa}</h1>
+          <h1>{exp.cargo}</h1>
+          <h1>{exp.mesInicio} de {exp.anioInicio}</h1>
+          <h1>
+            {exp.mesFinal}{" "}
+            {exp.mesFinal === "Actual" ? "" : `de ${exp.anioFinal}`}
+          </h1>
+          {exp.tareas.map((tarea) => (
+            <div key={tarea.id} className="flex">
+              <h1>✔&nbsp;</h1>
+              <h1>{tarea.tarea}</h1>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+))}
+```
+
+<Note>
+The application recommends users enter experiences from most recent to oldest.
+</Note>

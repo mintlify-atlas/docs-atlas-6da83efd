@@ -1,0 +1,280 @@
+---
+title: Exporting to PDF
+description: Learn how to export your CV as a professional PDF document with customizable options
+---
+
+Once you've completed your CV, you can export it as a high-quality PDF file suitable for sharing with employers and printing.
+
+## PDF Export Process
+
+The application uses **jsPDF** and **html2canvas** libraries to convert your CV template into a PDF document.
+
+### How It Works
+
+<Steps>
+  <Step title="Navigate to Your Chosen Template">
+    Go to the **Diseños** section and select one of the three available templates (CV1, CV2, or CV3).
+  </Step>
+
+  <Step title="Preview Your CV">
+    Review your CV to ensure all information is correct and displays properly:
+    
+    - Check that all sections are filled out
+    - Verify your photo appears correctly
+    - Ensure text isn't cut off or overlapping
+  </Step>
+
+  <Step title="Click the Download Button">
+    Click the **Descargar** (Download) button below the CV preview to generate and download your PDF.
+  </Step>
+
+  <Step title="Save the PDF File">
+    Your browser will prompt you to save the file. The filename is automatically generated using your name:
+    
+    ```
+    CV-[YourFirstName][YourLastName].pdf
+    ```
+  </Step>
+</Steps>
+
+## Technical Implementation
+
+The PDF generation uses the following code implementation:
+
+```javascript
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
+function generarPDF() {
+  // Create a new PDF document (portrait, points, letter size)
+  const pdf = new jsPDF("p", "pt", "letter");
+  
+  // Get the CV content div
+  const contenidoDiv = document.getElementById("contenido-pdf");
+  contenidoDiv.width = 541;  // Canvas width in pixels
+  contenidoDiv.height = 700; // Canvas height in pixels
+
+  // Convert HTML content to canvas
+  html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/jpeg");
+
+    // Add the image to the PDF document
+    pdf.addImage(
+      imgData,
+      "JPEG",
+      0,
+      0,
+      pdf.internal.pageSize.getWidth(),
+      pdf.internal.pageSize.getHeight(),
+      "",
+      "FAST"
+    );
+
+    // Save the PDF with dynamic filename
+    pdf.save(`CV-${datos.nombre}${datos.apellido}.pdf`);
+  });
+}
+```
+
+### Key Parameters
+
+- **Page Format**: Letter size (8.5" x 11")
+- **Orientation**: Portrait
+- **Scale Factor**: 5x for high resolution
+- **Image Format**: JPEG for smaller file size
+- **Compression**: FAST compression for quick generation
+
+## PDF Export Options
+
+### Canvas Dimensions
+
+The CV is rendered at specific dimensions before conversion:
+
+- **Mobile**: 350px × 453px
+- **Desktop**: 541px × 700px
+
+The `scale: 5` parameter ensures high-resolution output:
+
+```javascript
+html2canvas(contenidoDiv, { scale: 5 })
+```
+
+This results in:
+- Mobile: 1750px × 2265px
+- Desktop: 2705px × 3500px
+
+### Image Quality
+
+The export uses JPEG format with "FAST" compression mode, which provides:
+
+- Good balance between file size and quality
+- Quick generation time
+- Compatible with all PDF readers
+- Suitable for both digital sharing and printing
+
+## Understanding the Export Process
+
+<CardGroup cols={2}>
+  <Card title="Step 1: HTML to Canvas" icon="image">
+    html2canvas converts your CV's HTML/CSS into a canvas element, capturing the exact visual representation.
+  </Card>
+  
+  <Card title="Step 2: Canvas to Data URL" icon="file-code">
+    The canvas is converted to a base64-encoded JPEG data URL for embedding in the PDF.
+  </Card>
+  
+  <Card title="Step 3: Data URL to PDF" icon="file-pdf">
+    jsPDF creates a new PDF document and adds the image, fitting it to letter size dimensions.
+  </Card>
+  
+  <Card title="Step 4: Save File" icon="download">
+    The browser triggers a download with your custom filename.
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+### Before Exporting
+
+<Accordion title="Review all content">
+  - Double-check all personal information
+  - Verify dates and contact details
+  - Proofread for spelling and grammar errors
+  - Ensure work experience is up-to-date
+</Accordion>
+
+<Accordion title="Check photo quality">
+  - Ensure your profile photo is clear and professional
+  - Verify the photo shape setting (circular or square) appears as intended
+  - Make sure the photo isn't pixelated or distorted
+</Accordion>
+
+<Accordion title="Test different templates">
+  - Try exporting from different CV templates
+  - Compare which layout best presents your information
+  - Choose the template that best fits your industry
+</Accordion>
+
+### After Exporting
+
+- **Open and review** the PDF to ensure everything exported correctly
+- **Check file size** - typical CV PDFs should be 100-500KB
+- **Test printing** to ensure colors and formatting look good on paper
+- **Keep multiple versions** with different templates for different job applications
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="PDF is blank or incomplete">
+    **Possible causes:**
+    - Content hasn't fully loaded before export
+    - Browser compatibility issue
+    - JavaScript errors preventing generation
+    
+    **Solutions:**
+    - Wait a few seconds after the page loads before clicking Download
+    - Try a different browser (Chrome and Firefox work best)
+    - Check browser console for errors
+    - Refresh the page and try again
+  </Accordion>
+  
+  <Accordion title="Photo doesn't appear in PDF">
+    **Possible causes:**
+    - Photo stored in localStorage is too large
+    - Browser security settings blocking canvas operations
+    - Corrupted image data
+    
+    **Solutions:**
+    - Re-upload your profile photo with a smaller file
+    - Try a different image format (JPEG works best)
+    - Clear localStorage and re-upload the photo
+  </Accordion>
+  
+  <Accordion title="Text is cut off or overlapping">
+    **Possible causes:**
+    - Too much content for the template
+    - Long words without line breaks
+    - Font rendering issues
+    
+    **Solutions:**
+    - Reduce content length in affected sections
+    - Try a different CV template
+    - Use shorter paragraphs and bullet points
+  </Accordion>
+  
+  <Accordion title="Download doesn't start">
+    **Possible causes:**
+    - Browser blocking downloads
+    - Pop-up blocker interference
+    - Insufficient permissions
+    
+    **Solutions:**
+    - Check browser download settings
+    - Allow pop-ups for this site
+    - Try right-clicking and "Save As"
+  </Accordion>
+  
+  <Accordion title="Poor print quality">
+    **Possible causes:**
+    - Low resolution export
+    - Color profile issues
+    - Printer settings
+    
+    **Solutions:**
+    - The scale: 5 setting provides high resolution
+    - Use color printer for best results
+    - Adjust printer quality settings to "High"
+    - Consider professional printing for important submissions
+  </Accordion>
+</AccordionGroup>
+
+### Browser Compatibility
+
+The PDF export feature works best with:
+
+| Browser | Support | Notes |
+|---------|---------|-------|
+| Chrome | ✅ Excellent | Recommended |
+| Firefox | ✅ Excellent | Recommended |
+| Safari | ⚠️ Good | May have minor rendering differences |
+| Edge | ✅ Excellent | Chromium-based version |
+| Opera | ✅ Good | Chromium-based |
+
+<Warning>
+  Internet Explorer is not supported. Please use a modern browser.
+</Warning>
+
+## Advanced Tips
+
+### Optimizing File Size
+
+If your PDF file is too large:
+
+1. **Reduce photo size**: Use a smaller profile photo before uploading
+2. **Minimize content**: Keep text concise and relevant
+3. **Consider compression**: Use PDF compression tools after export if needed
+
+### Multiple Exports
+
+Create different versions for different purposes:
+
+```
+CV-JohnDoe-Technical.pdf     (for tech jobs, CV1 template)
+CV-JohnDoe-Creative.pdf      (for creative roles, CV2 template)
+CV-JohnDoe-Executive.pdf     (for senior positions, CV3 template)
+```
+
+### Sharing Your PDF
+
+- **Email**: Most CVs under 500KB send without issues
+- **Job Portals**: Compatible with all major job websites
+- **LinkedIn**: Can be uploaded to your profile
+- **Cloud Storage**: Upload to Google Drive, Dropbox, etc. for easy sharing
+
+## Next Steps
+
+- [Learn about data management](/guides/data-management) to backup your CV data
+- [Explore customization options](/guides/customization) to try different styles
+- [Return to creating your CV](/guides/creating-cv) to make updates

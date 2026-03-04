@@ -1,0 +1,528 @@
+---
+title: Navigation Components
+description: Navigation components including Navbar, Sidebar, and Footer for application routing and layout structure
+---
+
+## Overview
+
+The CV builder uses several navigation components to provide routing and layout structure:
+
+- **Navbar** - Top navigation bar with main application sections
+- **Sidebar** - Side navigation for profile sections with photo upload
+- **SidebarDisenios** - Specialized sidebar for CV design templates
+- **Footer** - Footer component (basic structure)
+
+## Navbar Component
+
+**Location**: `src/components/Navbar.jsx`
+
+The Navbar provides top-level navigation between main application sections with active state highlighting.
+
+### Dependencies
+
+```javascript
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { useState } from "react";
+import { Courgette } from "next/font/google";
+```
+
+Reference: `src/components/Navbar.jsx:2-6`
+
+### Font Configuration
+
+```javascript
+const logo = Courgette({
+  subsets: ["latin"],
+  weight: "400",
+});
+```
+
+The logo uses Google's Courgette font for branding.
+
+Reference: `src/components/Navbar.jsx:8-11`
+
+### Route Detection
+
+The component uses `usePathname()` to detect the current route and highlight active sections:
+
+```javascript
+const pathName = usePathname();
+const perfilPaths = [
+  "/perfil/info-personal",
+  "/perfil/info-academica",
+  "/perfil/competencias",
+  "/perfil/experiencia-laboral",
+  "/perfil/ref-profesionales",
+  "/perfil/ref-personales",
+  "/perfil/cargar-importante",
+];
+
+const diseniosPaths = ["/disenios/cv1", "/disenios/cv2", "/disenios/cv3"];
+```
+
+Reference: `src/components/Navbar.jsx:20-31`
+
+### Navigation Structure
+
+```jsx
+<div className="Barra flex flex-col md:flex-row">
+  <div className="flex justify-center md:justify-start w-full">
+    <Link
+      href={"/"}
+      className={`${logo.className} antialiased text-xl font-bold`}
+    >
+      Curriculum Vitae
+    </Link>
+  </div>
+  <br className="block md:hidden" />
+  <div className="flex gap-5 items-center justify-between w-screen px-5 md:justify-normal md:w-auto md:px-0">
+    <Link
+      href={"/"}
+      className={`${pathName === "/" ? "SeleccionadoNavbar" : ""}`}
+    >
+      <h1>Inicio</h1>
+    </Link>
+    |
+    <Link
+      href={"/perfil/info-personal"}
+      className={`${
+        pathName.startsWith("/perfil/") && perfilPaths.includes(pathName)
+          ? "SeleccionadoNavbar"
+          : ""
+      }`}
+    >
+      <h1>Perfil</h1>
+    </Link>
+    |
+    <Link
+      href="{"/disenios/cv1"}
+      className={`${
+        pathName.startsWith("/disenios/") &&
+        diseniosPaths.includes(pathName)
+          ? "SeleccionadoNavbar"
+          : ""
+      }`}
+    >
+      <h1>Diseños</h1>
+    </Link>
+    |
+    <Link
+      href={"/importante"}
+      className={`${
+        pathName === "/importante" ? "SeleccionadoNavbar" : ""
+      }`}
+    >
+      <h1>Importante</h1>
+    </Link>
+  </div>
+</div>
+```
+
+Reference: `src/components/Navbar.jsx:41-90`
+
+### Navigation Items
+
+| Item | Route | Active Condition |
+|------|-------|------------------|
+| **Logo** | `/` | - |
+| **Inicio** | `/` | Exact match `/` |
+| **Perfil** | `/perfil/info-personal` | Starts with `/perfil/` AND in perfilPaths |
+| **Diseños** | `/disenios/cv1` | Starts with `/disenios/` AND in diseniosPaths |
+| **Importante** | `/importante` | Exact match `/importante` |
+
+### Active State Styling
+
+Active navigation items receive the `SeleccionadoNavbar` CSS class:
+
+```jsx
+className={`${pathName === "/" ? "SeleccionadoNavbar" : ""}`}
+```
+
+### Responsive Layout
+
+The navbar adapts between mobile and desktop:
+
+- **Mobile**: Vertical layout, centered logo, full-width navigation
+- **Desktop**: Horizontal layout, left-aligned logo, compact navigation
+
+```jsx
+<div className="border-r-[1px] border-slate-900 text-sm h-[100px] md:h-[50px] flex items-center flex-col md:flex-row">
+```
+
+Reference: `src/components/Navbar.jsx:40`
+
+## Sidebar Component
+
+**Location**: `src/components/Sidebar.jsx`
+
+The Sidebar provides navigation for profile sections and includes the photo upload component.
+
+### Dependencies
+
+```javascript
+import Link from "next/link";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import FotoPerfil from "./FotoPerfil";
+import DescargarJSON from "./DescargarJSON";
+import BorrarInformacion from "./BorrarInformacion";
+import { FaAnglesDown } from "react-icons/fa6";
+```
+
+Reference: `src/components/Sidebar.jsx:2-10`
+
+### State Management
+
+```javascript
+const [isOpen, setIsOpen] = useState(false);
+const [titulo, setTitulo] = useState("Informacion Personal");
+const pathName = usePathname();
+
+function toggleDropdown(name) {
+  setIsOpen(!isOpen);
+  setTitulo(name);
+}
+```
+
+- `isOpen` - Mobile dropdown visibility
+- `titulo` - Current section title for mobile
+- `pathName` - Active route detection
+
+Reference: `src/components/Sidebar.jsx:13-20`
+
+### Desktop Layout
+
+```jsx
+<div className="hidden md:flex flex-col h-[85vh] border-r-[1px] border-slate-500 pr-10">
+  <div className="flex flex-col gap-3 flex-grow text-sm">
+    <FotoPerfil />
+    <Link
+      href={"/perfil/info-personal"}
+      className={`${
+        pathName === "/perfil/info-personal" ? "SeleccionadoSidebar" : ""
+      }`}
+    >
+      <h1>Información Personal</h1>
+    </Link>
+    {/* More navigation links... */}
+  </div>
+  <div className="flex flex-col gap-3">
+    <h1 className="Titulo font-bold">Datos:</h1>
+    <Link
+      href={"/perfil/cargar-informacion"}
+      type="button"
+      className="Button flex items-center justify-center"
+    >
+      <h1>Cargar</h1>
+    </Link>
+    <DescargarJSON />
+    <BorrarInformacion />
+  </div>
+</div>
+```
+
+Reference: `src/components/Sidebar.jsx:25-93`
+
+### Profile Navigation Links
+
+```jsx
+<Link
+  href={"/perfil/info-personal"}
+  className={`${
+    pathName === "/perfil/info-personal" ? "SeleccionadoSidebar" : ""
+  }`}
+>
+  <h1>Información Personal</h1>
+</Link>
+<Link
+  href={"/perfil/info-academica"}
+  className={`${
+    pathName === "/perfil/info-academica" ? "SeleccionadoSidebar" : ""
+  }`}
+>
+  <h1>Información Académica</h1>
+</Link>
+<Link
+  href={"/perfil/experiencia-laboral"}
+  className={`${
+    pathName === "/perfil/experiencia-laboral"
+      ? "SeleccionadoSidebar"
+      : ""
+  }`}
+>
+  <h1>Experiencia Laboral</h1>
+</Link>
+<Link
+  href={"/perfil/competencias"}
+  className={`${
+    pathName === "/perfil/competencias" ? "SeleccionadoSidebar" : ""
+  }`}
+>
+  <h1>Competencias</h1>
+</Link>
+<Link
+  href={"/perfil/ref-profesionales"}
+  className={`${
+    pathName === "/perfil/ref-profesionales"
+      ? "SeleccionadoSidebar"
+      : ""
+  }`}
+>
+  <h1>Referencias Profesionales</h1>
+</Link>
+<Link
+  href={"/perfil/ref-personales"}
+  className={`${
+    pathName === "/perfil/ref-personales" ? "SeleccionadoSidebar" : ""
+  }`}
+>
+  <h1>Referencias Personales</h1>
+</Link>
+```
+
+Reference: `src/components/Sidebar.jsx:28-79`
+
+### Sidebar Sections
+
+| Section | Route |
+|---------|-------|
+| Información Personal | `/perfil/info-personal` |
+| Información Académica | `/perfil/info-academica` |
+| Experiencia Laboral | `/perfil/experiencia-laboral` |
+| Competencias | `/perfil/competencias` |
+| Referencias Profesionales | `/perfil/ref-profesionales` |
+| Referencias Personales | `/perfil/ref-personales` |
+
+### Data Management Section
+
+Bottom section provides data operations:
+
+```jsx
+<div className="flex flex-col gap-3">
+  <h1 className="Titulo font-bold">Datos:</h1>
+  <Link
+    href={"/perfil/cargar-informacion"}
+    type="button"
+    className="Button flex items-center justify-center"
+  >
+    <h1>Cargar</h1>
+  </Link>
+  <DescargarJSON />
+  <BorrarInformacion />
+</div>
+```
+
+Reference: `src/components/Sidebar.jsx:81-92`
+
+### Mobile Dropdown
+
+Mobile version uses a dropdown toggle:
+
+```jsx
+<button
+  onClick={() => {
+    toggleDropdown(titulo);
+  }}
+  className="flex items-center justify-center gap-2 md:hidden bg-slate-900 p-3 h-[50px]"
+>
+  <h1>{titulo}</h1>
+  <FaAnglesDown className="text-xs" />
+</button>
+{isOpen && (
+  <div className="block sm:hidden ">
+    <div className="absolute z-10 h-[calc(100vh-150px)] overflow-y-auto w-screen bg-black text-white">
+      {/* Navigation links with toggleDropdown onClick */}
+    </div>
+  </div>
+)}
+```
+
+Reference: `src/components/Sidebar.jsx:94-211`
+
+### Mobile Link Pattern
+
+Mobile links update the title and close dropdown:
+
+```jsx
+<Link
+  href={"/perfil/info-personal"}
+  className={`${
+    pathName === "/perfil/info-personal"
+      ? "SeleccionadoSidebar"
+      : ""
+  }`}
+  onClick={() => {
+    toggleDropdown("Información Personal");
+  }}
+>
+  <h1>Información Personal</h1>
+</Link>
+```
+
+Reference: `src/components/Sidebar.jsx:110-122`
+
+## SidebarDisenios Component
+
+**Location**: `src/components/disenios/SidebarDisenios.jsx`
+
+Specialized sidebar for CV design template selection.
+
+### Dependencies
+
+```javascript
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+import LinkDisenios from "./LinkDisenios";
+import { FaAnglesDown } from "react-icons/fa6";
+```
+
+Reference: `src/components/disenios/SidebarDisenios.jsx:2-7`
+
+### State
+
+```javascript
+const [isOpen, setIsOpen] = useState(false);
+const toggleDropdown = () => {
+  setIsOpen(!isOpen);
+};
+```
+
+Reference: `src/components/disenios/SidebarDisenios.jsx:10-13`
+
+### Desktop Layout
+
+```jsx
+<div className="hidden md:flex flex-col h-[85vh] border-r-[1px] border-slate-500 pr-10">
+  <div className="flex flex-col items-center gap-3 flex-grow text-sm">
+    <LinkDisenios dato="cv1" />
+    <LinkDisenios dato="cv2" />
+    <LinkDisenios dato="cv3" />
+  </div>
+</div>
+```
+
+Reference: `src/components/disenios/SidebarDisenios.jsx:17-23`
+
+### Mobile Dropdown
+
+```jsx
+<button
+  onClick={toggleDropdown}
+  className="flex items-center justify-center gap-2 md:hidden bg-slate-900 p-3 mb-3"
+>
+  <h1>Diseños</h1>
+  <FaAnglesDown className="text-xs" />
+</button>
+{isOpen && (
+  <div className="className=block sm:hidden">
+    <div className="absolute z-0 w-screen bg-black text-white">
+      <div className="flex flex-col h-[84vh]">
+        <div className="flex-grow flex gap-5 items-start justify-center">
+          <div onClick={toggleDropdown}>
+            <LinkDisenios dato="cv1" />
+          </div>
+          <div onClick={toggleDropdown}>
+            <LinkDisenios dato="cv2" />
+          </div>
+          <div onClick={toggleDropdown}>
+            <LinkDisenios dato="cv3" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+```
+
+Reference: `src/components/disenios/SidebarDisenios.jsx:25-50`
+
+### Design Templates
+
+The sidebar displays links to three CV design templates:
+- CV1
+- CV2
+- CV3
+
+Each uses the `LinkDisenios` component with a `dato` prop.
+
+## Footer Component
+
+**Location**: `src/components/Footer.jsx`
+
+Basic footer structure (minimal implementation):
+
+```jsx
+function Footer() {
+  return (
+    <div className="border-t-[1px] border-slate-500">
+      <div className="Barra">
+        <div>Item1</div>
+        <div>Item2</div>
+      </div>
+    </div>
+  );
+}
+
+export default Footer;
+```
+
+Reference: `src/components/Footer.jsx:1-12`
+
+## Styling Conventions
+
+### Active State Classes
+
+- `SeleccionadoNavbar` - Active navbar item
+- `SeleccionadoSidebar` - Active sidebar item
+
+### Layout Classes
+
+- `Barra` - Container class for navigation bars
+- `Button` - Standard button styling
+- `Titulo` - Title/heading styling
+
+### Responsive Patterns
+
+- `hidden md:flex` - Desktop only
+- `block md:hidden` - Mobile only
+- `flex-col md:flex-row` - Vertical mobile, horizontal desktop
+
+## Integration Example
+
+### Layout with Navigation
+
+```jsx
+import Navbar from "@/components/Navbar";
+import Sidebar from "@/components/Sidebar";
+import Footer from "@/components/Footer";
+
+export default function ProfileLayout({ children }) {
+  return (
+    <div>
+      <Navbar />
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-grow">
+          {children}
+        </main>
+      </div>
+      <Footer />
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+- Use `usePathname()` for active route detection
+- Implement separate mobile/desktop layouts with Tailwind breakpoints
+- Apply consistent active state styling
+- Group related navigation items logically
+- Provide visual feedback for current location
+- Use dropdown menus for mobile navigation
+- Include icons for better mobile UX
+- Keep navigation structure flat and simple
+- Maintain consistent spacing and alignment
+- Use semantic HTML for accessibility

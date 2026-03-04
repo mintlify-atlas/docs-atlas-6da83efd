@@ -1,0 +1,556 @@
+---
+title: Customization Options
+description: Explore the various ways to customize your CV's appearance and style
+---
+
+The CV Builder offers several customization options to help you create a professional CV that matches your style and industry requirements.
+
+## Available Customizations
+
+<CardGroup cols={2}>
+  <Card title="Template Selection" icon="palette">
+    Choose from three professionally designed CV templates, each with unique layouts and styling.
+  </Card>
+  
+  <Card title="Photo Shape" icon="circle">
+    Toggle between circular and square profile photo shapes to match your preferred aesthetic.
+  </Card>
+  
+  <Card title="Font Styling" icon="font">
+    Each template uses carefully selected Google Fonts for optimal readability and professionalism.
+  </Card>
+  
+  <Card title="Color Schemes" icon="brush">
+    Templates feature different color schemes suitable for various industries and preferences.
+  </Card>
+</CardGroup>
+
+## CV Templates
+
+### Template 1 (CV1): Classic Professional
+
+A traditional single-column layout with elegant typography.
+
+**Features:**
+- Right-side header with profile photo
+- Two-column content layout (40/60 split)
+- Clean border separators
+- Playfair Display font for name
+- Roboto font for content
+
+**Best for:**
+- Traditional industries (law, finance, consulting)
+- Formal applications
+- Conservative corporate environments
+
+**Technical Implementation:**
+```jsx
+import { Roboto, Playfair_Display } from "next/font/google";
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "300",
+});
+
+const play = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+```
+
+**Layout Structure:**
+```jsx
+<div className="flex flex-col w-[350px] h-[453px] md:w-[541px] md:h-[700px]">
+  <section id="barra-superior">
+    {/* Name, profession, photo */}
+  </section>
+  <section id="informacion" className="flex">
+    <section id="col-izquierda" className="w-2/5">
+      {/* Contact, skills, languages, references */}
+    </section>
+    <section id="col-derecha" className="w-3/5">
+      {/* Profile, experience, education */}
+    </section>
+  </section>
+</div>
+```
+
+### Template 2 (CV2): Modern Two-Tone
+
+A contemporary design with a prominent left sidebar.
+
+**Features:**
+- Dark sidebar (left column)
+- Light content area (right column)
+- Two-column layout (40/60 split)
+- Top-aligned profile photo in sidebar
+- Saira Condensed font for name
+- Arsenal font for content
+- Highlight color (#fdedcb) for section titles
+
+**Best for:**
+- Creative industries
+- Modern companies
+- Tech and startup environments
+- Marketing and design roles
+
+**Technical Implementation:**
+```jsx
+import { Saira_Condensed, Arsenal } from "next/font/google";
+
+const nombreApellido = Saira_Condensed({
+  subsets: ["latin"],
+  weight: "300",
+});
+
+const contenido = Arsenal({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+```
+
+**Color Scheme:**
+```css
+/* Sidebar background */
+background: #424e5e;
+color: white;
+
+/* Section title highlight */
+background: #fdedcb;
+```
+
+**Layout Structure:**
+```jsx
+<div className="flex">
+  <section id="izquierda" className="w-2/5 bg-[#424e5e] text-white">
+    {/* Photo, name, profile, contact, technical skills, soft skills */}
+  </section>
+  <section id="derecha" className="w-3/5">
+    {/* Experience, education, references, languages */}
+  </section>
+</div>
+```
+
+### Template 3 (CV3): Executive Style
+
+A third template option with its own unique styling (specific implementation varies).
+
+**Best for:**
+- Senior positions
+- Executive roles
+- Professional services
+- Alternative to CV1 and CV2
+
+<Tip>
+  Try exporting your CV with all three templates and compare them to see which best represents your professional brand.
+</Tip>
+
+## Photo Shape Customization
+
+One of the key customization features is the ability to toggle between circular and square profile photos.
+
+### How to Change Photo Shape
+
+<Steps>
+  <Step title="Upload or Select Photo">
+    First, upload your profile photo using the photo upload section.
+  </Step>
+
+  <Step title="Find the Toggle">
+    Below your profile photo, you'll see an **Imagen Circular** (Circular Image) toggle switch.
+  </Step>
+
+  <Step title="Toggle the Switch">
+    Click the toggle to switch between circular and square shapes. The change is applied instantly.
+  </Step>
+
+  <Step title="View in Templates">
+    Navigate to any CV template to see your photo with the selected shape applied.
+  </Step>
+</Steps>
+
+### Technical Implementation
+
+```jsx
+const [fotoRedonda, setFotoRedonda] = useState(false);
+
+// Load saved preference on component mount
+useEffect(() => {
+  const estado = localStorage.getItem("fotoRedonda") === "true";
+  if (estado) {
+    setFotoRedonda(estado);
+  }
+}, []);
+
+// Save preference to localStorage when changed
+const handleToggle = () => {
+  const nuevoEstado = !fotoRedonda;
+  setFotoRedonda(nuevoEstado);
+  localStorage.setItem("fotoRedonda", nuevoEstado);
+};
+
+// Apply shape in CV templates
+<Image
+  src={fotoPerfil}
+  alt="Foto de Perfil"
+  width={83}
+  height={83}
+  className={fotoRedonda ? "rounded-[50%]" : ""}
+/>
+```
+
+### Toggle Component
+
+```jsx
+<div className="flex items-center p-2 w-full justify-between">
+  <h1>Imagen Circular</h1>
+  <label className="flex items-center cursor-pointer">
+    <div className="relative">
+      <input
+        type="checkbox"
+        id="toggle"
+        checked={fotoRedonda}
+        onChange={handleToggle}
+        className="hidden"
+      />
+      <div
+        className={`block bg-gray-300 w-8 h-4 rounded-full ${
+          fotoRedonda ? "bg-green-500" : ""
+        }`}
+      ></div>
+      <div
+        className={`absolute left-0 top-0 bg-white w-4 h-4 rounded-full transition-transform ${
+          fotoRedonda ? "translate-x-full" : ""
+        }`}
+      ></div>
+    </div>
+  </label>
+</div>
+```
+
+## Typography Customization
+
+Each template uses specific Google Fonts for optimal presentation.
+
+### CV1 Typography
+
+<Tabs>
+  <Tab title="Name & Headers">
+    **Playfair Display**
+    - Weights: 600, 700
+    - Usage: Full name, major headings
+    - Style: Elegant, serif
+    - Character: Professional, traditional
+  </Tab>
+  
+  <Tab title="Body Content">
+    **Roboto**
+    - Weight: 300 (light)
+    - Usage: All body text, details, descriptions
+    - Style: Clean, sans-serif
+    - Character: Modern, readable
+  </Tab>
+</Tabs>
+
+### CV2 Typography
+
+<Tabs>
+  <Tab title="Name & Headers">
+    **Saira Condensed**
+    - Weight: 300
+    - Usage: Name display in sidebar
+    - Style: Condensed, modern
+    - Character: Contemporary, space-efficient
+  </Tab>
+  
+  <Tab title="Body Content">
+    **Arsenal**
+    - Weights: 400, 700
+    - Usage: All content sections
+    - Style: Balanced, readable
+    - Character: Professional, approachable
+  </Tab>
+</Tabs>
+
+<Info>
+  Font choices are built into each template and automatically applied. No manual font selection is needed.
+</Info>
+
+## Color Schemes
+
+### CV1 Color Palette
+
+```css
+/* Background */
+background: white;
+
+/* Text */
+color: black;
+
+/* Borders */
+border-color: black;
+
+/* Overall feel: Clean, minimal, professional */
+```
+
+### CV2 Color Palette
+
+```css
+/* Sidebar background */
+background: #424e5e; /* Dark slate blue-gray */
+
+/* Sidebar text */
+color: white;
+
+/* Main content background */
+background: white;
+
+/* Main content text */
+color: black;
+
+/* Section title highlight */
+background: #fdedcb; /* Soft cream/beige */
+
+/* Overall feel: Modern, professional, visual hierarchy */
+```
+
+<Note>
+  Color schemes are template-specific and cannot be customized individually. Choose the template with colors that best fit your industry and personal brand.
+</Note>
+
+## Responsive Design
+
+All templates are responsive and adapt to different screen sizes.
+
+### Breakpoints
+
+| Breakpoint | Screen Size | CV Dimensions | Font Adjustments |
+|------------|-------------|---------------|------------------|
+| Mobile | < 768px | 350px × 453px | Smaller font sizes |
+| Desktop | ≥ 768px | 541px × 700px | Standard font sizes |
+
+### Implementation
+
+```jsx
+// Responsive container
+<div className="w-[350px] h-[453px] md:w-[541px] md:h-[700px]">
+
+// Responsive image
+<Image
+  src={fotoPerfil}
+  width={53}    // Mobile size
+  height={53}
+  className="rounded-[50%] lg:hidden"  // Show only on mobile
+/>
+<Image
+  src={fotoPerfil}
+  width={83}    // Desktop size
+  height={83}
+  className="hidden lg:block"  // Show only on desktop
+/>
+
+// Responsive typography
+<div className="text-[5.8px] lg:text-[9px]">
+```
+
+## Best Practices
+
+### Choosing the Right Template
+
+<AccordionGroup>
+  <Accordion title="For Traditional Industries">
+    **Use CV1 (Classic Professional)**
+    - Law firms
+    - Financial institutions
+    - Consulting firms
+    - Academic positions
+    - Government roles
+    
+    The clean, traditional layout conveys professionalism and attention to detail.
+  </Accordion>
+  
+  <Accordion title="For Creative Industries">
+    **Use CV2 (Modern Two-Tone)**
+    - Design agencies
+    - Marketing companies
+    - Tech startups
+    - Media companies
+    - Creative roles
+    
+    The visual hierarchy and modern aesthetic show creativity while maintaining professionalism.
+  </Accordion>
+  
+  <Accordion title="For Executive Positions">
+    **Use CV3 (Executive Style) or CV1**
+    - Senior management
+    - C-suite positions
+    - Board positions
+    - High-level consulting
+    
+    Choose templates that emphasize experience and accomplishments.
+  </Accordion>
+</AccordionGroup>
+
+### Photo Shape Selection
+
+<Tabs>
+  <Tab title="Circular Photos">
+    **Best for:**
+    - Modern, approachable look
+    - Creative industries
+    - Tech companies
+    - Startups
+    - Marketing roles
+    
+    **Psychology:**
+    Circular shapes are perceived as friendly, approachable, and modern.
+  </Tab>
+  
+  <Tab title="Square Photos">
+    **Best for:**
+    - Traditional industries
+    - Formal applications
+    - Conservative companies
+    - Academic positions
+    - Professional services
+    
+    **Psychology:**
+    Square shapes convey stability, professionalism, and structure.
+  </Tab>
+</Tabs>
+
+### Customization Strategy
+
+<Steps>
+  <Step title="Consider Your Industry">
+    Research typical CV styles in your target industry. Look at examples from successful professionals in your field.
+  </Step>
+
+  <Step title="Match the Company Culture">
+    Align your CV style with the company you're applying to:
+    - Corporate: CV1 with square photo
+    - Startup: CV2 with circular photo
+    - Traditional: CV1 with square photo
+    - Creative: CV2 with circular photo
+  </Step>
+
+  <Step title="Create Multiple Versions">
+    Export your CV in different templates and photo shapes for different applications:
+    ```
+    CV-JohnDoe-Corporate.pdf (CV1, square)
+    CV-JohnDoe-Creative.pdf (CV2, circular)
+    CV-JohnDoe-Executive.pdf (CV3, square)
+    ```
+  </Step>
+
+  <Step title="Test and Gather Feedback">
+    Share different versions with mentors, colleagues, or career counselors to get feedback on which style works best.
+  </Step>
+</Steps>
+
+## Advanced Customization Tips
+
+### Content Optimization per Template
+
+<Card title="CV1 Content Tips" icon="file-lines">
+  - Keep left column concise (contact, skills, languages, references)
+  - Use right column for detailed experience and education
+  - Write a compelling 2-3 sentence profile summary
+  - Use bullet points for technical skills
+</Card>
+
+<Card title="CV2 Content Tips" icon="file-lines">
+  - Leverage the visual sidebar for key information
+  - Put technical skills prominently in the sidebar
+  - Use the main area for detailed narratives
+  - Shorter about me section works better with this layout
+</Card>
+
+### Photo Guidelines
+
+<CardGroup cols={2}>
+  <Card title="Circular Shape" icon="circle">
+    **Photo Requirements:**
+    - Center your face in the frame
+    - Use neutral background
+    - Ensure face takes up 60-70% of frame
+    - Smile naturally
+  </Card>
+  
+  <Card title="Square Shape" icon="square">
+    **Photo Requirements:**
+    - Professional headshot style
+    - Business attire
+    - Can include more upper body
+    - Neutral or office background
+  </Card>
+</CardGroup>
+
+## Troubleshooting Customization
+
+<AccordionGroup>
+  <Accordion title="Photo shape not changing">
+    **Check:**
+    - Toggle is being clicked (should see green when enabled)
+    - Page is refreshed after change
+    - localStorage is not disabled
+    - Try clearing browser cache
+    
+    **Solution:**
+    ```javascript
+    // Manually check localStorage
+    console.log(localStorage.getItem("fotoRedonda"));
+    // Should return "true" or "false"
+    ```
+  </Accordion>
+  
+  <Accordion title="Template looks different than expected">
+    **Possible causes:**
+    - Browser zoom level
+    - Screen size/resolution
+    - Missing fonts (check internet connection)
+    - Browser compatibility
+    
+    **Solutions:**
+    - Reset browser zoom to 100%
+    - Check on desktop for full layout
+    - Refresh page to reload fonts
+    - Try Chrome or Firefox
+  </Accordion>
+  
+  <Accordion title="Fonts not loading properly">
+    **Possible causes:**
+    - Internet connection required for Google Fonts
+    - Browser blocking external fonts
+    - Ad blocker interference
+    
+    **Solutions:**
+    - Check internet connection
+    - Disable ad blockers temporarily
+    - Clear browser cache and reload
+    - Fonts load on export, so PDF should still be correct
+  </Accordion>
+</AccordionGroup>
+
+## Comparison Table
+
+| Feature | CV1 | CV2 | CV3 |
+|---------|-----|-----|-----|
+| Layout | Single tone, two columns | Two-tone, sidebar | Custom design |
+| Photo Position | Top right | Top of sidebar | Varies |
+| Best For | Traditional | Modern/Creative | Executive |
+| Color Complexity | Simple (B&W) | Medium (2-3 colors) | Varies |
+| Font Style | Serif + Sans-serif | Condensed + Balanced | Varies |
+| Visual Weight | Balanced | Left-heavy | Varies |
+| Print Friendly | Excellent | Good (toner usage) | Good |
+| ATS Friendly | Excellent | Good | Good |
+
+<Info>
+  All templates are designed to be ATS (Applicant Tracking System) friendly when exported as PDF, though CV1 has the most traditional structure that most ATS systems handle well.
+</Info>
+
+## Next Steps
+
+- [Create your CV](/guides/creating-cv) with your chosen customizations
+- [Export to PDF](/guides/exporting-pdf) to see final results
+- [Manage your data](/guides/data-management) and save different versions

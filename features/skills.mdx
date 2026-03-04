@@ -1,0 +1,384 @@
+---
+title: Skills & Competencies
+description: Comprehensive skills management system with soft skills, technical aptitudes, and language proficiency tracking
+---
+
+## Overview
+
+The Skills module manages three distinct categories of professional competencies:
+1. **Soft Skills** (Habilidades Blandas) - Social, emotional, and communication abilities
+2. **Technical Skills** (Habilidades Técnicas) - Job-specific practical skills
+3. **Languages** (Lenguajes) - Language proficiency
+
+All skills are stored as tagged items with autocomplete suggestions.
+
+## Implementation Location
+
+`~/workspace/source/src/app/perfil/competencias/page.jsx`
+
+## Data Structure
+
+All competencies are stored in a single cookie object:
+
+```javascript
+const competencias = {
+  habilidades: [],  // Soft skills array
+  aptitudes: [],    // Technical skills array
+  lenguajes: []     // Languages array
+}
+```
+
+### Individual Skill Objects
+
+Each skill type has its own structure:
+
+```javascript
+// Soft skill
+{
+  id: "1707698343580",
+  habilidad: "Trabajo en equipo."
+}
+
+// Technical skill
+{
+  id: "1707698349236",
+  aptitud: "Microsoft Office."
+}
+
+// Language
+{
+  id: "1707698355421",
+  lenguaje: "Ingles."
+}
+```
+
+## Cookie Storage
+
+```javascript
+import Cookies from "js-cookie";
+
+// Initialize
+const competencias = {
+  habilidades: [],
+  aptitudes: [],
+  lenguajes: [],
+};
+Cookies.set("Competencias", JSON.stringify(competencias), {
+  expires: 3650
+});
+```
+
+## Soft Skills (Habilidades Blandas)
+
+### Description
+
+Social, emotional, and communication abilities that enable effective interaction and teamwork.
+
+### Predefined Suggestions
+
+```jsx
+<datalist id="habilidades">
+  <option value="Empatía.">Empatía.</option>
+  <option value="Creatividad.">Creatividad.</option>
+  <option value="Trabajo en equipo.">Trabajo en equipo.</option>
+  <option value="Toma de decisiones.">Toma de decisiones.</option>
+  <option value="Gestión del tiempo.">Gestión del tiempo.</option>
+  <option value="Pensamiento crítico.">Pensamiento crítico.</option>
+  <option value="Comunicación efectiva.">Comunicación efectiva.</option>
+  <option value="Capacidad de liderazgo.">Capacidad de liderazgo.</option>
+  <option value="Resolución de problemas.">Resolución de problemas.</option>
+</datalist>
+```
+
+### Input Field with Autocomplete
+
+```jsx
+<input
+  type="text"
+  id="habilidad"
+  value={habilidad}
+  onChange={(e) => setHabilidad(e.target.value)}
+  className="Input flex-grow"
+  list="habilidades"
+  autoComplete="off"
+/>
+```
+
+### Adding Soft Skills
+
+```javascript
+function agregar(competencia) {
+  const fecha = new Date();
+  
+  if (competencia === "Habilidades" && habilidad) {
+    const Nueva = {
+      id: fecha.getTime().toString(),
+      habilidad: habilidad,
+    };
+    actualizarCookies("habilidades", Nueva);
+    setHabilidad("");
+  }
+}
+```
+
+## Technical Skills (Habilidades Técnicas)
+
+### Description
+
+Specific, practical abilities needed to perform particular jobs or tasks.
+
+### Predefined Suggestions
+
+```jsx
+<datalist id="aptitudes">
+  <option value="Microsoft Office.">Microsoft Office.</option>
+  <option value="Dominio de idiomas.">Dominio de idiomas.</option>
+  <option value="Atención al cliente.">Atención al cliente.</option>
+  <option value="Redacción de textos.">Redacción de textos.</option>
+  <option value="Gestión de proyectos.">Gestión de proyectos.</option>
+  <option value="Manejo de contabilidad.">Manejo de contabilidad.</option>
+  <option value="SEO y marketing digital.">SEO y marketing digital.</option>
+  <option value="Configuración de servidores.">Configuración de servidores.</option>
+  <option value="Manejo de maquinaria pesada.">Manejo de maquinaria pesada.</option>
+  <option value="Soldadura y ensamblaje mecánico.">Soldadura y ensamblaje mecánico.</option>
+  <option value="Técnicas básicas de diseño gráfico.">Técnicas básicas de diseño gráfico.</option>
+</datalist>
+```
+
+### Adding Technical Skills
+
+```javascript
+if (competencia === "Aptitudes" && aptitud) {
+  const Nueva = {
+    id: fecha.getTime().toString(),
+    aptitud: aptitud,
+  };
+  actualizarCookies("aptitudes", Nueva);
+  setAptitud("");
+}
+```
+
+## Languages (Lenguajes)
+
+### Description
+
+Language proficiency tracking for multilingual candidates.
+
+### Predefined Suggestions
+
+```jsx
+<datalist id="lenguajes">
+  <option value="Ruso.">Ruso.</option>
+  <option value="Ingles.">Ingles.</option>
+  <option value="Español.">Español.</option>
+  <option value="Japones.">Japones.</option>
+  <option value="Frances.">Frances.</option>
+  <option value="Italiano.">Italiano.</option>
+  <option value="Portugués.">Portugués.</option>
+  <option value="Chino Mandarin.">Chino Mandarin.</option>
+</datalist>
+```
+
+### Adding Languages
+
+```javascript
+if (competencia === "Lenguajes" && lenguaje) {
+  const Nueva = {
+    id: fecha.getTime().toString(),
+    lenguaje: lenguaje,
+  };
+  actualizarCookies("lenguajes", Nueva);
+  setLenguaje("");
+}
+```
+
+## Core Functions
+
+### Update Cookies
+
+```javascript
+function actualizarCookies(competencia, nueva) {
+  const tmp = JSON.parse(Cookies.get("Competencias"));
+  tmp[competencia].push(nueva);
+  Cookies.set("Competencias", JSON.stringify(tmp), { expires: 3650 });
+}
+```
+
+### Delete Skill
+
+```javascript
+function eliminar(id, competencia) {
+  const tmp = JSON.parse(Cookies.get("Competencias"));
+  const index = tmp[competencia].findIndex((objeto) => objeto.id === id);
+  if (index !== -1) {
+    tmp[competencia].splice(index, 1);
+    Cookies.set("Competencias", JSON.stringify(tmp), { expires: 3650 });
+    obtenerCompetenciasDesdeCookies();
+  }
+}
+```
+
+### Load from Cookies
+
+```javascript
+const obtenerCompetenciasDesdeCookies = () => {
+  const competenciasDesdeCookies = Cookies.get("Competencias");
+  if (competenciasDesdeCookies) {
+    setCompetencias(JSON.parse(competenciasDesdeCookies));
+  }
+};
+
+useEffect(() => {
+  const existe = Cookies.get("Competencias");
+  if (!existe)
+    Cookies.set("Competencias", JSON.stringify(competencias), {
+      expires: 3650,
+    });
+  if (existe) obtenerCompetenciasDesdeCookies();
+}, []);
+```
+
+## State Management
+
+```javascript
+const [competencias, setCompetencias] = useState({
+  habilidades: [],
+  aptitudes: [],
+  lenguajes: [],
+});
+const [habilidad, setHabilidad] = useState("");
+const [aptitud, setAptitud] = useState("");
+const [lenguaje, setLenguaje] = useState([]);
+```
+
+## Display with Sorting
+
+Skills are displayed as tags, sorted by length:
+
+```javascript
+const ordenarPorLongitud = (a, b, propiedad) => {
+  return a[propiedad].length - b[propiedad].length;
+};
+```
+
+### Soft Skills Display
+
+```jsx
+<div className="flex gap-3 flex-wrap">
+  {competencias.habilidades
+    .slice()
+    .sort((a, b) => ordenarPorLongitud(a, b, "habilidad"))
+    .map((habilidad) => (
+      <div
+        key={habilidad.id}
+        className="Etiqueta max-w-max flex gap-3"
+      >
+        <h1>{habilidad.habilidad}</h1>
+        <button
+          type="button"
+          className="Border-l pl-2"
+          onClick={() => eliminar(habilidad.id, "habilidades")}
+        >
+          <IoIosCloseCircleOutline className="Alerta" />
+        </button>
+      </div>
+    ))}
+</div>
+```
+
+### Technical Skills Display
+
+```jsx
+{competencias.aptitudes
+  .slice()
+  .sort((a, b) => ordenarPorLongitud(a, b, "aptitud"))
+  .map((aptitud) => (
+    <div key={aptitud.id} className="Etiqueta max-w-max flex gap-3">
+      <h1>{aptitud.aptitud}</h1>
+      <button
+        type="button"
+        className="Border-l pl-2"
+        onClick={() => eliminar(aptitud.id, "aptitudes")}
+      >
+        <IoIosCloseCircleOutline className="Alerta" />
+      </button>
+    </div>
+  ))}
+```
+
+### Languages Display
+
+```jsx
+{competencias.lenguajes
+  .slice()
+  .sort((a, b) => ordenarPorLongitud(a, b, "lenguaje"))
+  .map((lenguaje) => (
+    <div key={lenguaje.id} className="Etiqueta max-w-max flex gap-3">
+      <h1>{lenguaje.lenguaje}</h1>
+      <button
+        type="button"
+        className="Border-l pl-2"
+        onClick={() => eliminar(lenguaje.id, "lenguajes")}
+      >
+        <IoIosCloseCircleOutline className="Alerta" />
+      </button>
+    </div>
+  ))}
+```
+
+## UI Components
+
+Each section follows a consistent pattern:
+
+```jsx
+<form action="" className="mb-20">
+  <section className="flex gap-3 md:w-full">
+    <label htmlFor="habilidad" className="w-1/8">
+      Habilidad:
+    </label>
+    <input
+      type="text"
+      id="habilidad"
+      value={habilidad}
+      onChange={(e) => setHabilidad(e.target.value)}
+      className="Input flex-grow"
+      list="habilidades"
+      autoComplete="off"
+    />
+    <datalist id="habilidades">
+      {/* Options */}
+    </datalist>
+    <button
+      type="button"
+      onClick={() => agregar("Habilidades")}
+      className="Button w-1/10"
+    >
+      Añadir
+    </button>
+  </section>
+  <br />
+  <section>
+    <div className="flex gap-3 flex-wrap">
+      {/* Display tags */}
+    </div>
+  </section>
+</form>
+```
+
+## Icons
+
+The close button uses react-icons:
+
+```javascript
+import { IoIosCloseCircleOutline } from "react-icons/io";
+
+<IoIosCloseCircleOutline className="Alerta" />
+```
+
+<Note>
+The component uses the HTML5 `<datalist>` element for autocomplete suggestions while still allowing custom entries.
+</Note>
+
+<Tip>
+Skills are automatically sorted by length (shortest first) for optimal visual presentation in CV templates.
+</Tip>

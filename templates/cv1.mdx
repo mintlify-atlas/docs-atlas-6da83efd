@@ -1,0 +1,259 @@
+---
+title: "Template 1: Classic Design"
+description: "A traditional two-column CV template with elegant typography and clean professional styling"
+---
+
+Template 1 offers a classic, elegant approach to curriculum vitae design. It features a traditional two-column layout with sophisticated typography and minimal visual styling, making it ideal for conservative industries and formal applications.
+
+## Visual Design
+
+### Layout Structure
+
+The template uses a vertical two-column layout:
+
+- **Left Column (40% width):** Personal information and skills
+- **Right Column (60% width):** Professional experience and education
+- **Top Header:** Name, profession, and profile photo
+
+### Color Scheme
+
+- **Background:** White (#FFFFFF)
+- **Text:** Black
+- **Borders:** Thin black borders (1px) for section separation
+- **Style:** Monochromatic, professional, minimalist
+
+### Typography
+
+The template combines two Google Fonts for visual hierarchy:
+
+```javascript
+import { Roboto, Playfair_Display } from "next/font/google";
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "300",
+});
+
+const play = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+```
+
+- **Primary Font:** Roboto Light (300) - Used for all body text
+- **Heading Font:** Playfair Display (600, 700) - Used for name display
+- **Font Sizes:** 
+  - Mobile: 5.8px-9px for body, 9px for profession
+  - Desktop: 9px for body, 13px for profession, 24px for name
+
+## Component Structure
+
+### Header Section
+
+The top header displays the candidate's key information:
+
+```jsx
+<section id="barra-superior" className="flex justify-between w-auto h-auto border-b-[1px] pb-1 lg:pb-2">
+  <div className="flex flex-col justify-between">
+    <h5 className="text-[9px] lg:text-sm">{datos.profesion}</h5>
+    <div className={`${play.className} antialiased text-sm lg:text-2xl font-bold tracking-widest uppercase`}>
+      <h1>{datos.nombre}</h1>
+      <h1>{datos.apellido}</h1>
+    </div>
+  </div>
+  <div className="w-auto h-auto mt-auto">
+    <Image
+      src={fotoPerfil}
+      alt="Foto de Perfil"
+      width={83}
+      height={83}
+      className={fotoRedonda ? "rounded-[50%] hidden lg:block" : "hidden lg:block"}
+    />
+  </div>
+</section>
+```
+
+**Visual Description:** The profession appears in small text at the top left, with the name displayed prominently below in uppercase Playfair Display font. The profile photo is positioned in the bottom right corner.
+
+### Left Column Sections
+
+The left column includes:
+
+1. **Personal Information** (`DatosPersonales`)
+   - Email, address, DNI, phone, marital status
+   - Custom icons from react-icons:
+     - Email: `AiOutlineMail`
+     - Location: `IoLocationOutline`
+     - ID: `PiIdentificationBadge`
+     - Phone: `IoPhonePortraitOutline`
+     - Marital status: `GiLinkedRings`
+
+2. **Soft Skills** (`HabilidadesBlandas`)
+   - Bulleted list with ▪ symbol
+
+3. **Technical Skills** (`HabilidadesTecnicas`)
+   - Bulleted list with ▪ symbol
+
+4. **Languages** (`Lenguajes`)
+   - Bulleted list with ▪ symbol
+
+5. **Professional References** (`RefProfesionales`)
+
+6. **Personal References** (`RefPersonales`)
+
+All sections use a consistent border separator:
+
+```javascript
+const borde = "border-t-[1px] pt-1 mt-1 lg:pt-2 lg:mt-2";
+```
+
+### Right Column Sections
+
+The right column features:
+
+1. **Profile Section** (Conditional)
+   ```jsx
+   {datos.sobremi !== "" && datos.sobremi ? (
+     <div>
+       <h2 className="font-black">PERFIL</h2>
+       <p className="text-justify">{datos.sobremi}</p>
+     </div>
+   ) : <></>
+   }
+   ```
+
+2. **Work Experience** (`Experiencia`)
+   - Company name and dates
+   - Job title
+   - Task list with ✓ checkmark symbol
+
+3. **Education** (`Educacion`)
+   - Institution name and dates
+   - Degree/program title
+
+## Icon Configuration
+
+Template 1 uses specific icon mapping:
+
+```javascript
+const cv1 = {
+  correo: <AiOutlineMail />,
+  direccion: <IoLocationOutline />,
+  dni: <PiIdentificationBadge />,
+  celular: <IoPhonePortraitOutline />,
+  estadocivil: <GiLinkedRings />,
+};
+```
+
+## Dimensions
+
+- **Mobile:** 350px × 453px
+- **Desktop:** 541px × 700px
+- **PDF Output:** Letter size (8.5" × 11")
+- **Padding:** 
+  - Mobile: 12px (p-3)
+  - Desktop: 20px (p-5)
+
+## Data Management
+
+The template retrieves data from multiple storage sources:
+
+```javascript
+const [datos, setDatos] = useState([]);
+const [fotoPerfil, setFotoPerfil] = useState(defaultSrc);
+const [fotoRedonda, setFotoRedonda] = useState(false);
+
+useEffect(() => {
+  // Photo from localStorage
+  const image = localStorage.getItem("fotoPerfil");
+  if (image) setFotoPerfil(image);
+  
+  // Personal data from cookies
+  const existe = Cookies.get("InformacionPersonal");
+  if (existe) setDatos(JSON.parse(existe));
+  
+  // Photo shape preference
+  const estadoFoto = localStorage.getItem("fotoRedonda") === "true";
+  setFotoRedonda(estadoFoto);
+}, []);
+```
+
+## Styling Details
+
+### Section Separators
+
+Left column sections use top borders:
+```javascript
+const borde = "border-t-[1px] pt-1 mt-1 lg:pt-2 lg:mt-2";
+```
+
+Columns are separated by a vertical border:
+```jsx
+className="w-3/5 h-[372px] lg:h-[580px] border-l-[1px] py-1 pl-1 lg:py-2 lg:pl-2"
+```
+
+### Text Formatting
+
+- **Line Height:** Very compact (10px mobile, 16px desktop)
+- **Font Weight:** Semibold throughout
+- **Antialiasing:** Enabled for smooth rendering
+- **Text Alignment:** Justified for profile section
+
+## PDF Generation Settings
+
+Template 1 uses these specific settings:
+
+```javascript
+function generarPDF() {
+  const pdf = new jsPDF("p", "pt", "letter");
+  const contenidoDiv = document.getElementById("contenido-pdf");
+  contenidoDiv.width = 541;
+  contenidoDiv.height = 700;
+
+  html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/jpeg");
+    pdf.addImage(
+      imgData,
+      "JPEG",
+      0,
+      0,
+      pdf.internal.pageSize.getWidth(),
+      pdf.internal.pageSize.getHeight(),
+      "",
+      "FAST"
+    );
+    pdf.save(`CV-${datos.nombre}${datos.apellido}.pdf`);
+  });
+}
+```
+
+**Key Settings:**
+- Orientation: Portrait ("p")
+- Units: Points ("pt")
+- Page Size: Letter
+- Canvas Scale: 5 (high quality)
+- Image Format: JPEG
+- Compression: FAST
+
+## Use Cases
+
+Template 1 is ideal for:
+
+- Academic positions and research roles
+- Legal and financial services
+- Government and public sector jobs
+- Traditional corporate environments
+- Candidates with extensive experience requiring clear organization
+- Industries that value conservative, professional presentation
+
+## Customization Points
+
+Developers can customize:
+
+1. **Border styles:** Modify the `borde` constant
+2. **Font weights:** Adjust Roboto and Playfair Display weights
+3. **Icon set:** Change the `cv1` icon mapping
+4. **Bullet symbols:** Replace `item = "▪"` constant
+5. **Photo shapes:** Toggle between square and circular
+6. **Column widths:** Adjust the 40/60 split
+7. **Spacing:** Modify padding and margin values

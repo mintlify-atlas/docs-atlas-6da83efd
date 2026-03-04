@@ -1,0 +1,369 @@
+---
+title: Form Components
+description: Form components with cookie-based state management, validation patterns, and auto-save functionality for CV data collection
+---
+
+## Overview
+
+The CV builder uses form components with client-side state management through React hooks and persistent storage using cookies. Forms handle various data types including text inputs, textareas, selects, and implement validation patterns for structured data like DNI and phone numbers.
+
+## Core Form Pattern
+
+All forms in the application follow a consistent pattern:
+
+1. **Client-side rendering** with `"use client"` directive
+2. **State management** using React `useState` hooks
+3. **Persistent storage** using `js-cookie` library
+4. **Auto-initialization** from cookies on component mount
+5. **Manual save** with user feedback
+
+## Personal Information Form
+
+The primary form example from `src/app/perfil/info-personal/page.jsx` demonstrates the complete pattern:
+
+### State Management
+
+```jsx
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+
+export default function InformacionPersonal() {
+  // Individual state for each field
+  const [sobremi, setSobremi] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [profesion, setProfesion] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [celular, setCelular] = useState("");
+  const [dni, setDni] = useState("");
+  const [estadocivil, setEstadocivil] = useState("");
+
+  // UI state for save feedback
+  const [visible, setVisible] = useState(false);
+  const [animacion, setAnimacion] = useState();
+}
+```
+
+### Cookie Initialization
+
+Forms initialize from cookies on mount and create default structure if not present:
+
+```jsx
+useEffect(() => {
+  const info = {
+    sobremi: "",
+    nombre: "",
+    apellido: "",
+    profesion: "",
+    direccion: "",
+    correo: "",
+    celular: "",
+    dni: "",
+    estadocivil: "",
+  };
+  const existe = Cookies.get("InformacionPersonal");
+  if (!existe)
+    Cookies.set("InformacionPersonal", JSON.stringify(info), {
+      expires: 3650, // 10 years
+    });
+  if (existe) cargarDatos(JSON.parse(existe));
+}, []);
+```
+
+### Data Loading
+
+The `cargarDatos` function hydrates state from cookie data:
+
+```jsx
+function cargarDatos(data) {
+  setSobremi(data.sobremi);
+  setNombre(data.nombre);
+  setApellido(data.apellido);
+  setProfesion(data.profesion);
+  setDireccion(data.direccion);
+  setCorreo(data.correo);
+  setCelular(data.celular);
+  setDni(data.dni);
+  setEstadocivil(data.estadocivil);
+}
+```
+
+### Save Functionality
+
+Saving collects current state and persists to cookies with user feedback:
+
+```jsx
+function guardar() {
+  const data = nuevo();
+  Cookies.set("InformacionPersonal", JSON.stringify(data), { expires: 3650 });
+
+  // Show success message with animation
+  setVisible(true);
+  setAnimacion("animate-fade-right");
+  setTimeout(() => {
+    setAnimacion("animate-fade-right animate-reverse animate-delay-[2000ms]");
+  }, 2000);
+  setTimeout(() => {
+    setVisible(false);
+  }, 3000);
+}
+
+function nuevo() {
+  const info = {
+    sobremi: sobremi !== undefined ? sobremi : "",
+    nombre: nombre !== undefined ? nombre : "",
+    apellido: apellido !== undefined ? apellido : "",
+    profesion: profesion !== undefined ? profesion : "",
+    direccion: direccion !== undefined ? direccion : "",
+    correo: correo !== undefined ? correo : "",
+    celular: celular !== undefined ? celular : "",
+    dni: dni !== undefined ? dni : "",
+    estadocivil: estadocivil !== undefined ? estadocivil : "",
+  };
+  return info;
+}
+```
+
+## Input Types
+
+### Text Input
+
+Standard text inputs with controlled state:
+
+```jsx
+<input
+  type="text"
+  id="nombre"
+  value={nombre}
+  onChange={(e) => setNombre(e.target.value)}
+  className="Input w-2/3 md:w-2/5"
+  placeholder="Primer nombre"
+  autoComplete="off"
+/>
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:120-128`
+
+### Textarea
+
+Multi-line text input for longer content:
+
+```jsx
+<textarea
+  type="text"
+  id="sobremi"
+  value={sobremi}
+  onChange={(e) => setSobremi(e.target.value)}
+  className="w-full h-24 my-3 p-3 rounded-md bg-gray-800 resize-none"
+/>
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:99-105`
+
+### Email Input
+
+Email-specific input with browser validation:
+
+```jsx
+<input
+  type="email"
+  id="correo"
+  value={correo}
+  onChange={(e) => setCorreo(e.target.value)}
+  placeholder="correoelectronico@server.com"
+  className="Input w-2/3"
+  autoComplete="off"
+/>
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:176-184`
+
+### Select Dropdown
+
+Dropdown for predefined options:
+
+```jsx
+<select
+  id="estadocivil"
+  value={estadocivil}
+  onChange={(e) => setEstadocivil(e.target.value)}
+  className="Select w-1/3"
+>
+  <option value="">Omitir</option>
+  <option value="Soltero">Soltero</option>
+  <option value="Soltera">Soltera</option>
+  <option value="Casado">Casado</option>
+  <option value="Casada">Casada</option>
+  <option value="Viudo">Viudo</option>
+  <option value="Viuda">Viuda</option>
+  <option value="Divorciado">Divorciado</option>
+  <option value="Divorciada">Divorciada</option>
+</select>
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:222-238`
+
+## Validation Patterns
+
+### DNI Pattern
+
+DNI input with pattern validation and max length:
+
+```jsx
+<input
+  type="text"
+  id="dni"
+  value={dni}
+  maxLength={15}
+  onChange={(e) => setDni(e.target.value)}
+  pattern="\d{4}-\d{4}-\d{5}"
+  placeholder="0000-0000-00000"
+  className="Input w-3/7 lg:w-2/5"
+  autoComplete="off"
+/>
+```
+
+**Pattern**: `\d{4}-\d{4}-\d{5}` (4 digits, dash, 4 digits, dash, 5 digits)
+
+Reference: `src/app/perfil/info-personal/page.jsx:190-200`
+
+### Phone Number Pattern
+
+Phone input with pattern validation:
+
+```jsx
+<input
+  type="text"
+  id="celular"
+  value={celular}
+  maxLength={9}
+  pattern="[0-9]{4}-[0-9]{4}"
+  onChange={(e) => setCelular(e.target.value)}
+  placeholder="9999-9999"
+  className="Input w-2/5"
+  autoComplete="off"
+/>
+```
+
+**Pattern**: `[0-9]{4}-[0-9]{4}` (4 digits, dash, 4 digits)
+
+Reference: `src/app/perfil/info-personal/page.jsx:206-216`
+
+## Form Layout
+
+Forms use a flex-based layout with responsive widths:
+
+```jsx
+<div className="flex flex-col gap-2 mt-2">
+  <div className="flex md:w-3/4">
+    <label htmlFor="nombre" className="w-1/3">
+      Nombre:
+    </label>
+    <input
+      type="text"
+      id="nombre"
+      value={nombre}
+      onChange={(e) => setNombre(e.target.value)}
+      className="Input w-2/3 md:w-2/5"
+      placeholder="Primer nombre"
+      autoComplete="off"
+    />
+  </div>
+  {/* More fields... */}
+</div>
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:115-129`
+
+## Save Button & Feedback
+
+### Save Button
+
+Buttons use `type="button"` to prevent form submission and trigger manual save:
+
+```jsx
+<button
+  type="button"
+  onClick={() => {
+    guardar();
+  }}
+  className="Button"
+>
+  Actualizar
+</button>
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:242-250`
+
+### Success Message
+
+Conditional success message with animation:
+
+```jsx
+{visible && (
+  <h1 id="mensaje" className={`MsjExito ${animacion}`}>
+    Datos actualizados con éxito!!!
+  </h1>
+)}
+```
+
+Reference: `src/app/perfil/info-personal/page.jsx:252-256`
+
+## Cookie Storage Details
+
+### Storage Key Convention
+
+Each form section uses a unique cookie key:
+- `InformacionPersonal` - Personal information
+- Similar pattern for other sections (academic, experience, etc.)
+
+### Expiration
+
+All cookies are set with 10-year expiration:
+
+```jsx
+Cookies.set("InformacionPersonal", JSON.stringify(data), { expires: 3650 });
+```
+
+### Data Format
+
+Data is stored as JSON-stringified objects:
+
+```javascript
+{
+  sobremi: "",
+  nombre: "",
+  apellido: "",
+  profesion: "",
+  direccion: "",
+  correo: "",
+  celular: "",
+  dni: "",
+  estadocivil: ""
+}
+```
+
+## Integration Pattern
+
+To create a new form section:
+
+1. **Define state variables** for each field
+2. **Create cookie key** following naming convention
+3. **Implement `useEffect`** for initialization
+4. **Implement `cargarDatos`** function
+5. **Implement `nuevo`** function to collect current state
+6. **Implement `guardar`** function with feedback
+7. **Build form UI** with controlled inputs
+8. **Add save button** with success message
+
+## Best Practices
+
+- Use `autoComplete="off"` to prevent browser autofill interference
+- Provide clear placeholder text for expected format
+- Use pattern validation for structured data (DNI, phone)
+- Implement maxLength to prevent overflow
+- Show success feedback with animations
+- Use undefined checks when building data objects
+- Set long cookie expiration for persistent data
+- Structure data as flat JSON objects for easy serialization

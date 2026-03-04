@@ -1,0 +1,445 @@
+---
+title: CV Templates
+description: Three professional CV designs with PDF export functionality using jsPDF and html2canvas for client-side rendering
+---
+
+## Overview
+
+The application provides three distinct CV templates (cv1, cv2, cv3), each with unique layouts, color schemes, and typography. All templates consume data from cookies and localStorage, render to a fixed-size canvas, and export to PDF using `jsPDF` and `html2canvas`.
+
+## Template Locations
+
+- **CV1**: `~/workspace/source/src/app/disenios/cv1/page.jsx`
+- **CV2**: `~/workspace/source/src/app/disenios/cv2/page.jsx`
+- **CV3**: `~/workspace/source/src/app/disenios/cv3/page.jsx`
+
+## Common Dependencies
+
+```javascript
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import Image from "next/image";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { /* Google Fonts */ } from "next/font/google";
+```
+
+## Shared Components
+
+All templates use these reusable components:
+
+```javascript
+import DatosPersonales from "@/components/informacion/DatosPersonales";
+import HabilidadesBlandas from "@/components/informacion/HabilidadesBlandas";
+import HabilidadesTecnicas from "@/components/informacion/HabilidadesTecnicas";
+import Lenguajes from "@/components/informacion/Lenguajes";
+import RefProfesionales from "@/components/informacion/RefProfesionales";
+import RefPersonales from "@/components/informacion/RefPersonales";
+import Experiencia from "@/components/informacion/Experiencia";
+import Educacion from "@/components/informacion/Educacion";
+```
+
+## Canvas Dimensions
+
+All templates render to a fixed-size container:
+
+```jsx
+<div
+  id="contenido-pdf"
+  className="flex flex-col w-[350px] h-[453px] md:w-[541px] md:h-[700px] bg-white text-black overflow-hidden"
+>
+  {/* Template content */}
+</div>
+```
+
+<CardGroup cols={2}>
+  <Card title="Mobile Size">
+    350px × 453px (approx 3:4 aspect ratio)
+  </Card>
+  
+  <Card title="Desktop Size">
+    541px × 700px (US Letter proportions)
+  </Card>
+</CardGroup>
+
+## PDF Generation
+
+All templates use the same PDF export function:
+
+```javascript
+function generarPDF() {
+  // Create PDF document (Letter size)
+  const pdf = new jsPDF("p", "pt", "letter");
+  
+  // Get the content container
+  const contenidoDiv = document.getElementById("contenido-pdf");
+  contenidoDiv.width = 541;   // Letter width in points
+  contenidoDiv.height = 700;  // Letter height in points
+  
+  // Convert HTML to canvas with high quality
+  html2canvas(contenidoDiv, { scale: 5 }).then((canvas) => {
+    const imgData = canvas.toDataURL("image/jpeg");
+    
+    // Add image to PDF
+    pdf.addImage(
+      imgData,
+      "JPEG",
+      0,
+      0,
+      pdf.internal.pageSize.getWidth(),
+      pdf.internal.pageSize.getHeight(),
+      "",
+      "FAST"
+    );
+    
+    // Save with dynamic filename
+    pdf.save(`CV-${datos.nombre}${datos.apellido}.pdf`);
+  });
+}
+```
+
+### PDF Export Button
+
+```jsx
+<button onClick={generarPDF} className="Button mr-auto">
+  Descargar
+</button>
+```
+
+## Data Loading Pattern
+
+All templates follow this data loading pattern:
+
+```javascript
+const [datos, setDatos] = useState([]);              // Personal info
+const [fotoPerfil, setFotoPerfil] = useState(defaultSrc);
+const [fotoRedonda, setFotoRedonda] = useState(false);
+
+useEffect(() => {
+  // Load profile photo
+  const image = localStorage.getItem("fotoPerfil");
+  if (image) setFotoPerfil(image);
+  
+  // Load personal information
+  const existe = Cookies.get("InformacionPersonal");
+  if (existe) setDatos(JSON.parse(existe));
+  
+  // Load photo display preference
+  const estadoFoto = localStorage.getItem("fotoRedonda") === "true";
+  setFotoRedonda(estadoFoto);
+}, []);
+```
+
+## Template 1 (CV1)
+
+### Design Characteristics
+
+- **Layout**: Two-column (40% left, 60% right)
+- **Typography**: Roboto (body) + Playfair Display (headers)
+- **Style**: Traditional, border-separated sections
+- **Color Scheme**: Black and white with simple borders
+
+### Google Fonts
+
+```javascript
+import { Roboto, Playfair_Display } from "next/font/google";
+
+const roboto = Roboto({
+  subsets: ["latin"],
+  weight: "300",
+});
+
+const play = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700"],
+});
+```
+
+### Icon Set
+
+```javascript
+import { AiOutlineMail } from "react-icons/ai";
+import { IoLocationOutline } from "react-icons/io5";
+import { PiIdentificationBadge } from "react-icons/pi";
+import { IoPhonePortraitOutline } from "react-icons/io5";
+import { GiLinkedRings } from "react-icons/gi";
+
+const cv1 = {
+  correo: <AiOutlineMail />,
+  direccion: <IoLocationOutline />,
+  dni: <PiIdentificationBadge />,
+  celular: <IoPhonePortraitOutline />,
+  estadocivil: <GiLinkedRings />,
+};
+```
+
+### Layout Structure
+
+```jsx
+<section id="barra-superior" className="flex justify-between w-auto h-auto border-b-[1px] pb-1 lg:pb-2">
+  <div className="flex flex-col justify-between">
+    <h5 className="text-[9px] lg:text-sm">{datos.profesion}</h5>
+    <div className={`${play.className} text-sm lg:text-2xl font-bold tracking-widest uppercase`}>
+      <h1>{datos.nombre}</h1>
+      <h1>{datos.apellido}</h1>
+    </div>
+  </div>
+  <div className="w-auto h-auto mt-auto">
+    <Image
+      src={fotoPerfil}
+      alt="Foto de Perfil"
+      width={83}
+      height={83}
+      className={fotoRedonda ? "rounded-[50%] hidden lg:block" : "hidden lg:block"}
+    />
+  </div>
+</section>
+
+<section id="informacion" className="flex text-[5.8px] lg:text-[9px]">
+  <section id="col-izquierda" className="w-2/5 py-1 pr-1 lg:py-2 lg:pr-2">
+    <DatosPersonales icono={cv1} />
+    <HabilidadesBlandas icono="▪" classBloque="border-t-[1px] pt-1 mt-1" />
+    {/* More sections */}
+  </section>
+  <section id="col-derecha" className="w-3/5 border-l-[1px] py-1 pl-1">
+    {datos.sobremi && (
+      <div>
+        <h2 className="font-black">PERFIL</h2>
+        <p>{datos.sobremi}</p>
+      </div>
+    )}
+    <Experiencia icono="✓&nbsp;" />
+    <Educacion />
+  </section>
+</section>
+```
+
+## Template 2 (CV2)
+
+### Design Characteristics
+
+- **Layout**: Two-column (40% left, 60% right)
+- **Typography**: Arsenal (body) + Saira Condensed (name)
+- **Style**: Modern with colored sidebar
+- **Color Scheme**: Dark gray sidebar (#424e5e), cream accents (#fdedcb)
+
+### Google Fonts
+
+```javascript
+import { Saira_Condensed, Arsenal } from "next/font/google";
+
+const nombreApellido = Saira_Condensed({
+  subsets: ["latin"],
+  weight: "300",
+});
+
+const contenido = Arsenal({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+```
+
+### Icon Set
+
+```javascript
+import { MdEmail } from "react-icons/md";
+import { FaLocationDot } from "react-icons/fa6";
+import { HiIdentification } from "react-icons/hi2";
+import { BsFillPhoneFill } from "react-icons/bs";
+import { GiLinkedRings } from "react-icons/gi";
+
+const cv2 = {
+  correo: <MdEmail />,
+  direccion: <FaLocationDot />,
+  dni: <HiIdentification />,
+  celular: <BsFillPhoneFill />,
+  estadocivil: <GiLinkedRings />,
+};
+```
+
+### Layout Structure
+
+```jsx
+<section className="flex text-[6.3px] lg:text-[10px]">
+  <section id="izquierda" className="w-2/5 h-[700px] bg-[#424e5e] text-white p-3 lg:p-5">
+    <div className="mx-auto w-auto h-auto mt-auto mb-2">
+      <Image
+        src={fotoPerfil}
+        alt="Foto de Perfil"
+        width={100}
+        height={100}
+        className={fotoRedonda ? "rounded-[50%] hidden lg:block" : "hidden lg:block"}
+      />
+    </div>
+    <div className={`${nombreApellido.className} tracking-widest uppercase`}>
+      <h1>{datos.nombre} {datos.apellido}</h1>
+    </div>
+    {datos.profesion && <h5>{datos.profesion}</h5>}
+    
+    {datos.sobremi && (
+      <div className="mb-2">
+        <h2 className="font-bold border-b-[1px] mb-1">PERFIL</h2>
+        <p>{datos.sobremi}</p>
+      </div>
+    )}
+    
+    <DatosPersonales icono={cv2} classBloque="mb-2" classTitulo="border-b-[1px] mb-1" />
+    <HabilidadesTecnicas icono="▸&nbsp;" classBloque="mb-2" />
+    <HabilidadesBlandas icono="▸&nbsp;" classBloque="mb-2" />
+  </section>
+  
+  <section id="derecha" className="w-3/5 p-3 lg:p-5">
+    <Experiencia icono="✓&nbsp;" classTitulo="bg-[#fdedcb] pl-1" classBody="pl-3" />
+    <Educacion classTitulo="bg-[#fdedcb] pl-1" classBody="pl-3" />
+    <RefProfesionales classTitulo="bg-[#fdedcb] pl-1" />
+    <Lenguajes icono="▸&nbsp;" classTitulo="bg-[#fdedcb] pl-1" />
+  </section>
+</section>
+```
+
+## Template 3 (CV3)
+
+### Design Characteristics
+
+- **Layout**: Header bar + two-column (40% left, 60% right)
+- **Typography**: Cairo (body) + Jost (headers)
+- **Style**: Clean with gray header and light sidebar
+- **Color Scheme**: Dark gray header (#585858), light gray sidebar (#f2f2f2)
+
+### Google Fonts
+
+```javascript
+import { Cairo, Jost } from "next/font/google";
+
+const nombreApellido = Jost({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const contenido2 = Cairo({
+  subsets: ["latin"],
+  weight: "300",
+});
+```
+
+### Icon Set
+
+Same as CV2:
+
+```javascript
+const cv3 = {
+  correo: <MdEmail />,
+  direccion: <FaLocationDot />,
+  dni: <HiIdentification />,
+  celular: <BsFillPhoneFill />,
+  estadocivil: <GiLinkedRings />,
+};
+```
+
+### Layout Structure
+
+```jsx
+<section id="barra-superior" className="flex h-auto border-b-[1px] bg-[#585858] text-white">
+  <div className="w-3/6 flex justify-center px-7 py-[5px] lg:py-2">
+    <Image
+      src={fotoPerfil}
+      alt="Foto de Perfil"
+      width={83}
+      height={83}
+      className={fotoRedonda ? "rounded-[50%] hidden lg:block" : "hidden lg:block"}
+    />
+  </div>
+  <div className="w-3/4 flex flex-col flex-grow items-center justify-center">
+    <div className={`${nombreApellido.className} text-sm lg:text-2xl tracking-wider uppercase`}>
+      <h1>{datos.nombre} {datos.apellido}</h1>
+    </div>
+    <h5>{datos.profesion}</h5>
+  </div>
+</section>
+
+<section id="informacion" className="flex text-[5.8px] lg:text-[9px]">
+  <section id="izquierda" className="w-2/5 bg-[#f2f2f2] py-1 pl-3 pr-2">
+    <DatosPersonales icono={cv3} classTitulo="border-b-[1px]" />
+    <Lenguajes icono="•" classBloque="mt-2" classTitulo="border-b-[1px]" />
+    <HabilidadesBlandas icono="•" classBloque="mt-2" />
+    <HabilidadesTecnicas icono="•" classBloque="mt-2" />
+  </section>
+  
+  <section id="derecha" className="w-3/5 py-1 pr-3 pl-2">
+    {datos.sobremi && (
+      <div>
+        <h2 className="border-b-[1px] mb-1 font-black">PERFIL</h2>
+        <p>{datos.sobremi}</p>
+      </div>
+    )}
+    <Experiencia icono="✓&nbsp;" classBloque="mt-2" classTitulo="border-b-[1px]" />
+    <Educacion classBloque="mt-2" classTitulo="border-b-[1px]" />
+  </section>
+</section>
+```
+
+## Component Props Pattern
+
+All templates pass styling props to shared components:
+
+```jsx
+<DatosPersonales 
+  icono={cv1}                    // Icon set object
+  classBloque="mb-2"             // Container class
+  classTitulo="border-b-[1px]"   // Title class
+  classBody="pl-3"               // Body class
+/>
+```
+
+## Responsive Typography
+
+Templates use responsive font sizing:
+
+```jsx
+className="text-[5.8px] lg:text-[9px]"     // Body text
+className="text-[9px] lg:text-sm"           // Secondary headers
+className="text-sm lg:text-2xl"             // Primary headers
+```
+
+## Image Handling
+
+Conditional rendering based on photo shape preference:
+
+```jsx
+<Image
+  src={fotoPerfil}
+  alt="Foto de Perfil"
+  width={83}
+  height={83}
+  className={fotoRedonda ? "rounded-[50%] hidden lg:block" : "hidden lg:block"}
+/>
+
+{/* Smaller version for mobile */}
+<Image
+  src={fotoPerfil}
+  alt="Foto de Perfil"
+  width={53}
+  height={53}
+  className="rounded-[50%] lg:hidden"
+/>
+```
+
+## Template Comparison
+
+| Feature | CV1 | CV2 | CV3 |
+|---------|-----|-----|-----|
+| **Layout** | 2-column | 2-column | Header + 2-column |
+| **Sidebar Color** | White | #424e5e | #f2f2f2 |
+| **Section Dividers** | Borders | Colored backgrounds | Borders |
+| **Name Font** | Playfair Display | Saira Condensed | Jost |
+| **Body Font** | Roboto | Arsenal | Cairo |
+| **Profile Location** | Right column | Left column | Right column |
+| **Style** | Traditional | Modern | Clean |
+
+<Note>
+All templates automatically hide the profile photo section on mobile (width < 768px) and show a smaller circular version.
+</Note>
+
+<Tip>
+The `scale: 5` parameter in `html2canvas` ensures high-quality PDF output suitable for printing.
+</Tip>
